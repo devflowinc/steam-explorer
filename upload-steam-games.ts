@@ -85,7 +85,7 @@ function jobToSearchableString(job: GameData): string {
 }
 
 async function processGameData() {
-  const readStream = fs.createReadStream("./games.json");
+  const readStream = fs.createReadStream("./data/games.json");
   const parseStream = json.createParseStream();
   parseStream.on("data", async function (items: { [id: string]: GameData }) {
     const createChunkData = Object.keys(items).map((i) => {

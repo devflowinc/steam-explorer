@@ -26,7 +26,12 @@ export const GameCard = ({ game }: { game: Chunk }) => {
   return (
     <Card className="flex flex-col justify-between">
       <CardHeader>
-        <CardTitle> {game.metadata.name}</CardTitle>
+        <CardTitle>
+          {" "}
+          <a href={game.link} target="_blank">
+            {game.metadata.name}
+          </a>
+        </CardTitle>
         <CardDescription className="flex items-center justify-between">
           {game.metadata.release_date}
           <span>
@@ -39,7 +44,7 @@ export const GameCard = ({ game }: { game: Chunk }) => {
       <CardContent>
         <Carousel>
           <CarouselContent>
-            {game.image_urls.map((image) => (
+            {game.metadata.screenshots.map((image) => (
               <CarouselItem key={image}>
                 <img className="max-w-full" src={image} />
               </CarouselItem>

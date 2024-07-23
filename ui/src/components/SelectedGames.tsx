@@ -1,18 +1,12 @@
-import { getRecommendations } from "@/lib/api";
 import { useGameState } from "@/lib/gameState";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const SelectedGames = () => {
+  const navigate = useNavigate();
   const { games } = useGameState((state) => ({
-    addGame: state.addGame,
     games: state.games,
   }));
-
-  const getRecommendedGames = async () => {
-    const a = await getRecommendations({
-      games: games.map((g) => g.tracking_id),
-    });
-  };
 
   return (
     <div className="fixed bottom-0 w-full left-0 bg-background py-8">
@@ -27,7 +21,7 @@ export const SelectedGames = () => {
             ))}
           </ul>
         </div>
-        <Button disabled={!games.length} onClick={getRecommendedGames}>
+        <Button disabled={!games.length} onClick={() => navigate("/recs")}>
           Get Recommendations
         </Button>
       </div>

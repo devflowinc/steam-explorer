@@ -1,13 +1,13 @@
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Loading } from "./components/Loading";
-import { GameCard } from "./components/GameCard";
-import { APIResponse, Chunk } from "./lib/types";
-import { getGames } from "./lib/api";
-import { SelectedGames } from "./components/SelectedGames";
+import { Loading } from "../components/Loading";
+import { GameCard } from "../components/GameCard";
+import { APIResponse, Chunk } from "../lib/types";
+import { getGames } from "../lib/api";
+import { SelectedGames } from "../components/SelectedGames";
 
-export function App() {
+export function Home() {
   const [query, setQuery] = useState("");
   const debouncedSearchTerm = useDebounce(query, 300);
   const [shownGames, setShownGames] = useState<APIResponse[]>([]);

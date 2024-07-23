@@ -1,17 +1,26 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { App } from "./App.tsx";
+import { Home } from "./pages/Home.tsx";
 import "./index.css";
 import { ThemeProvider } from "./components/theme-provider.tsx";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Recs } from "./pages/Recs.tsx";
 
-const queryClient = new QueryClient();
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/recs",
+    element: <Recs />,
+  },
+]);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  </ThemeProvider>
 );
