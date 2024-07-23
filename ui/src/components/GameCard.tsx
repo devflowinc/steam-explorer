@@ -1,6 +1,12 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useGameState } from "@/lib/gameState";
 import { Badge } from "./ui/badge";
 import { AsyncImage } from "loadable-image";
+import { IconBrandWindows, IconBrandApple } from "@tabler/icons-react";
 import {
   Card,
   CardContent,
@@ -18,6 +24,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
+import { Systems } from "./Systems";
 
 export const GameCard = ({
   game,
@@ -33,10 +41,11 @@ export const GameCard = ({
   return (
     <Card className="flex flex-col justify-between">
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="flex items-center justify-between">
           <a href={game.link} target="_blank">
             {game.metadata.name}
           </a>
+          <Systems metadata={game.metadata} />
         </CardTitle>
         <CardDescription className="flex items-center justify-between">
           {game.metadata.release_date}

@@ -5,6 +5,7 @@ import "./index.css";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Recs } from "./pages/Recs.tsx";
+import { TooltipProvider } from "./components/ui/tooltip.tsx";
 
 const router = createBrowserRouter([
   {
@@ -18,9 +19,11 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-    <React.StrictMode>
-      <RouterProvider router={router} />
-    </React.StrictMode>
-  </ThemeProvider>
+  <TooltipProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <React.StrictMode>
+        <RouterProvider router={router} />
+      </React.StrictMode>
+    </ThemeProvider>
+  </TooltipProvider>
 );
