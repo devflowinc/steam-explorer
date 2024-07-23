@@ -1,61 +1,25 @@
-"use strict";
-
 import fs from "fs";
 import axios from "axios";
 import path from "path";
 import { ArgumentParser } from "argparse";
-import { DateTime } from "luxon";
-
-const DEFAULT_INFILE = "./data/games.json";
-const DEFAULT_OUTFILE = "./data/games.json";
-const APPLIST_FILE = "./data/applist.json";
-const DISCARTED_FILE = "./data/discarted.json";
-const NOTRELEASED_FILE = "./data/notreleased.json";
-const DEFAULT_SLEEP = 1.5;
-const DEFAULT_RETRIES = 4;
-const DEFAULT_AUTOSAVE = 100;
-const DEFAULT_TIMEOUT = 10000;
-const DEFAULT_CURRENCY = "us";
-const DEFAULT_LANGUAGE = "en";
-const LOG_ICON = ["i", "W", "E", "!"];
-const INFO = 0;
-const WARNING = 1;
-const ERROR = 2;
-const EXCEPTION = 3;
-
-function log(level, message) {
-  console.log(
-    `[${LOG_ICON[level]} ${DateTime.now().toFormat("HH:mm:ss")}] ${message}.`
-  );
-}
-
-function progressBar(title, count, total) {
-  const barLen = 75;
-  const filledLen = Math.floor((barLen * count) / total);
-
-  const percents = ((100.0 * count) / total).toFixed(2);
-  const bar = "█".repeat(filledLen) + "░".repeat(barLen - filledLen);
-
-  process.stdout.write(
-    `[i ${DateTime.now().toFormat(
-      "HH:mm:ss"
-    )}] ${title} ${bar} ${percents}% (CTRL+C to exit).\r`
-  );
-}
-
-function sanitizeText(text) {
-  return text
-    .replace(/\n\r|\r\n|\r \n|\r|\n|\t/g, " ")
-    .replace("&quot;", "'")
-    .replace(/(https|http):\/\/(\w|\.|\/|\?|\=|\&|\%)*\b/g, "")
-    .replace(/<[^<]+?>/g, " ")
-    .replace(/ +/g, " ")
-    .trim();
-}
-
-function priceToFloat(price, decimals = 2) {
-  return parseFloat(price.replace(",", ".")).toFixed(decimals);
-}
+import {
+  DEFAULT_INFILE,
+  DEFAULT_OUTFILE,
+  APPLIST_FILE,
+  DISCARTED_FILE,
+  NOTRELEASED_FILE,
+  DEFAULT_SLEEP,
+  DEFAULT_RETRIES,
+  DEFAULT_AUTOSAVE,
+  DEFAULT_TIMEOUT,
+  DEFAULT_CURRENCY,
+  DEFAULT_LANGUAGE,
+  INFO,
+  WARNING,
+  ERROR,
+  EXCEPTION,
+} from "./scraper/consts";
+import { log, progressBar, sanitizeText, priceToFloat } from "./scraper/utils";
 
 async function doRequest(
   url,
@@ -233,7 +197,7 @@ function parseSteamGame(app) {
     let languagesApp = app.supported_languages
       .replace(/<[^<]+?>/g, "")
       .replace("languages with full audio support", "");
-    let languages = languagesApp.split(", ").map((lang) => {
+    languagesApp.split(", ").map((lang) => {
       lang = lang.replace("*", "");
       if (lang.includes("*")) {
         game.full_audio_languages.push(lang);

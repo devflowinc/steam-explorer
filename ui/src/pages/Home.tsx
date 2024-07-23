@@ -6,23 +6,21 @@ import { GameCard } from "../components/GameCard";
 import { APIResponse, Chunk } from "../lib/types";
 import { getGames } from "../lib/api";
 import { SelectedGames } from "../components/SelectedGames";
+import { useGameState } from "@/lib/gameState";
 
 export function Home() {
   const [query, setQuery] = useState("");
   const debouncedSearchTerm = useDebounce(query, 300);
-  const [shownGames, setShownGames] = useState<APIResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const getGamesForSearch = async () => {
-    if (debouncedSearchTerm) {
-      setIsLoading(true);
-      await getGames({ searchTerm: debouncedSearchTerm }).then(setShownGames);
-      setIsLoading(false);
-    }
-  };
+  const { shownGames, isLoading, getGamesForSearch } = useGameState(
+    (state) => ({
+      shownGames: state.shownGames,
+      isLoading: state.isLoading,
+      getGamesForSearch: state.getGamesForSearch,
+    })
+  );
 
   useEffect(() => {
-    getGamesForSearch();
+    getGamesForSearch(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
 
   return (
@@ -35,7 +33,7 @@ export function Home() {
       />
 
       <div className="grid grid-cols-3 gap-4 mt-8">
-        {!shownGames.length && !isLoading ? "Search for some games" : null}
+        {!shownGames?.length && !isLoading ? "Search for some games" : null}
         {isLoading ? (
           <div className="flex justify-center items-center mt-12 col-span-4">
             <Loading />

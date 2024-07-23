@@ -18,16 +18,21 @@ import {
 } from "@/components/ui/carousel";
 import { Button } from "./ui/button";
 
-export const GameCard = ({ game }: { game: Chunk }) => {
-  const { addGame, games } = useGameState((state) => ({
+export const GameCard = ({
+  game,
+  recommended,
+}: {
+  game: Chunk;
+  recommended: boolean;
+}) => {
+  const { addGame, selectedGames } = useGameState((state) => ({
     addGame: state.addGame,
-    games: state.games,
+    selectedGames: state.selectedGames,
   }));
   return (
     <Card className="flex flex-col justify-between">
       <CardHeader>
         <CardTitle>
-          {" "}
           <a href={game.link} target="_blank">
             {game.metadata.name}
           </a>
@@ -59,19 +64,21 @@ export const GameCard = ({ game }: { game: Chunk }) => {
           ))}
         </div>
       </CardContent>
-      <CardFooter className="block">
-        <Button
-          className="mt-4"
-          variant="outline"
-          onClick={() => addGame(game)}
-          disabled={
-            !!games.find((g) => g.tracking_id === game.tracking_id) ||
-            games.length > 9
-          }
-        >
-          Add Game
-        </Button>
-      </CardFooter>
+      {!recommended ? (
+        <CardFooter className="block">
+          <Button
+            className="mt-4"
+            variant="outline"
+            onClick={() => addGame(game)}
+            disabled={
+              !!selectedGames.find((g) => g.tracking_id === game.tracking_id) ||
+              selectedGames.length > 9
+            }
+          >
+            Add Game
+          </Button>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 };

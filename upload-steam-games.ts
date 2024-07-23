@@ -109,7 +109,7 @@ async function processGameData() {
     });
 
     const chunkSize = 50;
-    const chunkedItems = [];
+    const chunkedItems: any[] = [];
     for (let i = 0; i < createChunkData.length; i += chunkSize) {
       const chunk = createChunkData.slice(i, i + chunkSize);
       chunkedItems.push(chunk);
