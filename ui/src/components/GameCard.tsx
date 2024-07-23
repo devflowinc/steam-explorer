@@ -1,5 +1,6 @@
 import { useGameState } from "@/lib/gameState";
 import { Badge } from "./ui/badge";
+import { AsyncImage } from "loadable-image";
 import {
   Card,
   CardContent,
@@ -51,7 +52,7 @@ export const GameCard = ({
           <CarouselContent>
             {game.metadata.screenshots.map((image) => (
               <CarouselItem key={image}>
-                <img className="max-w-full" src={image} />
+                <AsyncImage className="w-full h-52" src={image} />
               </CarouselItem>
             ))}
           </CarouselContent>
