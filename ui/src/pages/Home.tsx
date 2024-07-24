@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Loading } from "../components/Loading";
 import { GameCard } from "../components/GameCard";
-import { APIResponse, Chunk } from "../lib/types";
-import { getGames } from "../lib/api";
+import { Chunk } from "../lib/types";
 import { SelectedGames } from "../components/SelectedGames";
 import { useGameState } from "@/lib/gameState";
 

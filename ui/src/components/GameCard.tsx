@@ -1,12 +1,7 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useGameState } from "@/lib/gameState";
 import { Badge } from "./ui/badge";
 import { AsyncImage } from "loadable-image";
-import { IconBrandWindows, IconBrandApple } from "@tabler/icons-react";
+
 import {
   Card,
   CardContent,
@@ -24,7 +19,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "./ui/button";
-import { cn } from "@/lib/utils";
 import { Systems } from "./Systems";
 
 export const GameCard = ({
@@ -32,7 +26,7 @@ export const GameCard = ({
   recommended,
 }: {
   game: Chunk;
-  recommended: boolean;
+  recommended?: boolean;
 }) => {
   const { addGame, selectedGames } = useGameState((state) => ({
     addGame: state.addGame,
