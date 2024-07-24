@@ -1,3 +1,4 @@
 node_modules
 .env
-data/games.json
+scraper/data/games.json
+scraper/data/*.bak
