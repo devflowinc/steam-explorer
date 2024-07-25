@@ -1,5 +1,4 @@
 import { GameCard } from "@/components/GameCard";
-import { SelectedGames } from "@/components/SelectedGames";
 import { useGameState } from "@/lib/gameState";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -29,7 +28,6 @@ export const Recs = () => {
           <GameCard recommended key={r.tracking_id} game={r}></GameCard>
         ))}
       </div>
-      <SelectedGames />
     </div>
   );
 };
