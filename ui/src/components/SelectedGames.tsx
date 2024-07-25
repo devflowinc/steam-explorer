@@ -1,7 +1,7 @@
 import { useGameState } from "@/lib/gameState";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
-import { IconX, IconXboxXFilled } from "@tabler/icons-react";
+import { IconXboxXFilled } from "@tabler/icons-react";
 
 export const SelectedGames = () => {
   const navigate = useNavigate();

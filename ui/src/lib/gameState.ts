@@ -17,7 +17,7 @@ interface GameState {
 
 export const useGameState = create<GameState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       recommendedGames: [],
       selectedGames: [],
       addGame: (game) =>
