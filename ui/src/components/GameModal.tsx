@@ -1,5 +1,5 @@
 import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
-import { DialogContent } from "./ui/dialog";
+import { DialogContent, DialogTitle } from "./ui/dialog";
 import {
   Carousel,
   CarouselContent,
@@ -12,16 +12,27 @@ import { AsyncImage } from "loadable-image";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
+import { useGameState } from "@/lib/gameState";
 
-export const GameModal = ({ game }: { game: Chunk }) => {
+export const GameModal = ({
+  game,
+  recommended,
+}: {
+  game: Chunk;
+  recommended?: boolean;
+}) => {
+  const { addGame, selectedGames } = useGameState((state) => ({
+    addGame: state.addGame,
+    selectedGames: state.selectedGames,
+  }));
   return (
     <DialogContent className="sm:max-w-[800px]">
       <div className="grid md:grid-cols-2 gap-6 items-start">
         <div>
           <Carousel>
             <CarouselContent>
-              {game.metadata.screenshots.map((image) => (
-                <CarouselItem key={image}>
+              {game.metadata.screenshots.map((image, i) => (
+                <CarouselItem key={i}>
                   <AsyncImage
                     src={image}
                     className="rounded-lg w-full aspect-[3/4] object-cover"
@@ -37,10 +48,31 @@ export const GameModal = ({ game }: { game: Chunk }) => {
           <a href={game.link} target="_blank">
             <Button className="mt-4 w-full">See on Steam</Button>
           </a>
+          {!recommended ? (
+            <div className="flex gap-4">
+              <Button
+                className="w-full mt-4"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addGame(game);
+                }}
+                disabled={
+                  !!selectedGames.find(
+                    (g) => g.tracking_id === game.tracking_id
+                  ) || selectedGames.length > 9
+                }
+              >
+                Add Game
+              </Button>
+            </div>
+          ) : null}
         </div>
         <div className="grid gap-4">
           <div>
-            <h2 className="text-3xl font-bold">{game.metadata.name}</h2>
+            <DialogTitle className="text-3xl font-bold">
+              {game.metadata.name}
+            </DialogTitle>
             <p className="text-muted-foreground">
               {game.metadata.genres.join(", ")}
             </p>
@@ -113,15 +145,18 @@ export const GameModal = ({ game }: { game: Chunk }) => {
               </div>
             </div>
           </div>
-          <div className="grid gap-2">
-            <p className="text-lg font-medium">Description</p>
-            <ScrollArea className="h-[300px]">
-              <p className="text-sm leading-relaxed">
-                {game.metadata.about_the_game ||
-                  game.metadata.detailed_description}
-              </p>
-            </ScrollArea>
-          </div>
+          {game.metadata.about_the_game ||
+          game.metadata.detailed_description ? (
+            <div className="grid gap-2">
+              <p className="text-lg font-medium">Description</p>
+              <ScrollArea className="h-[300px]">
+                <p className="text-sm leading-relaxed">
+                  {game.metadata.about_the_game ||
+                    game.metadata.detailed_description}
+                </p>
+              </ScrollArea>
+            </div>
+          ) : null}
           <div className="grid gap-2">
             <p className="text-lg font-medium">Details</p>
             <div className="grid sm:grid-cols-2 gap-2">

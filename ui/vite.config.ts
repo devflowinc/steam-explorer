@@ -11,6 +11,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  preview: {
+    port: 5173,
+  },
   server: {
     fs: {
       // Allow serving files from one level up to the project root

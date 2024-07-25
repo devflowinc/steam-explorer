@@ -32,8 +32,8 @@ export function GameCard({
           <div className="relative">
             <Carousel>
               <CarouselContent>
-                {game.metadata.screenshots.map((image) => (
-                  <CarouselItem key={image}>
+                {game.metadata.screenshots.map((image, i) => (
+                  <CarouselItem key={i}>
                     <AsyncImage
                       src={image}
                       className="w-full h-[300px] object-cover rounded-t-lg"
@@ -92,7 +92,10 @@ export function GameCard({
                 <Button
                   className="w-full"
                   variant="outline"
-                  onClick={() => addGame(game)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addGame(game);
+                  }}
                   disabled={
                     !!selectedGames.find(
                       (g) => g.tracking_id === game.tracking_id
@@ -106,7 +109,7 @@ export function GameCard({
           </CardContent>
         </Card>
       </DialogTrigger>
-      <GameModal game={game} />
+      <GameModal game={game} recommended={recommended} />
     </Dialog>
   );
 }
