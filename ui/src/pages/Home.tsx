@@ -6,6 +6,7 @@ import { GameCard } from "../components/GameCard";
 import { Chunk } from "../lib/types";
 import { SelectedGames } from "../components/SelectedGames";
 import { useGameState } from "@/lib/gameState";
+import { Layout } from "@/components/Layout";
 
 export function Home() {
   const [query, setQuery] = useState("");
@@ -23,7 +24,7 @@ export function Home() {
   }, [debouncedSearchTerm]);
 
   return (
-    <div className="container my-12">
+    <Layout>
       <Input
         type="search"
         placeholder="Sonic"
@@ -45,6 +46,6 @@ export function Home() {
       </div>
 
       <SelectedGames />
-    </div>
+    </Layout>
   );
 }
