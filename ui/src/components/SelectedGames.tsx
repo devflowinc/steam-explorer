@@ -13,7 +13,7 @@ export const SelectedGames = () => {
     }));
   return (
     <div className="fixed bottom-0 w-full left-0 bg-background py-8">
-      <div className="container flex items-center justify-between">
+      <div className="container sm:flex items-center justify-between">
         <div className="flex flex-col">
           Games Selected
           <ul className="grid grid-cols-2 gap-2 mt-2">
@@ -39,6 +39,7 @@ export const SelectedGames = () => {
         <div className="flex flex-col gap-2">
           <Button
             disabled={!selectedGames.length}
+            className="mt-2 sm:mt-0"
             onClick={() =>
               navigate(
                 `/recs?games=${selectedGames
@@ -49,7 +50,11 @@ export const SelectedGames = () => {
           >
             Get Recommendations
           </Button>
-          <Button variant="outline" onClick={clearSelectedGames}>
+          <Button
+            variant="outline"
+            className="hidden sm:block"
+            onClick={clearSelectedGames}
+          >
             Clear Choices
           </Button>
         </div>
