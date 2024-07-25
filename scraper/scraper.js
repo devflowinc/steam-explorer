@@ -162,13 +162,20 @@ async function steamSpyRequest(
   }
 }
 
+const getDate = (app) => {
+  try {
+    return app.release_date && !app.release_date.coming_soon
+      ? new Date(app.release_date.date).toISOString()
+      : "";
+  } catch {
+    return "";
+  }
+};
+
 function parseSteamGame(app) {
   return {
     name: app.name.trim(),
-    release_date:
-      app.release_date && !app.release_date.coming_soon
-        ? new Date(app.release_date.date).toISOString()
-        : "",
+    release_date: getDate(app),
     dlc_count: app.dlc ? app.dlc.length : 0,
     detailed_description: app.detailed_description?.trim() ?? "",
     price:

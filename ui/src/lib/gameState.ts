@@ -10,8 +10,9 @@ interface GameState {
   shownGames: APIResponse[];
   getGamesForSearch: (term: string) => void;
   recommendedGames: Chunk[];
-  getRecommendedGames: () => void;
+  getRecommendedGames: (games: string[]) => void;
   clearSelectedGames: () => void;
+  removeSelectedGame: (id: string) => void;
 }
 
 export const useGameState = create<GameState>()(
@@ -36,10 +37,16 @@ export const useGameState = create<GameState>()(
           ...state,
           selectedGames: [],
         })),
-      getRecommendedGames: async () => {
-        set((state) => ({ ...state, isLoading: true }));
+      removeSelectedGame: (id: string) =>
+        set((state) => ({
+          selectedGames: state.selectedGames.filter(
+            (game) => game.tracking_id !== id
+          ),
+        })),
+      getRecommendedGames: async (games: string[]) => {
+        set((state) => ({ ...state, isLoading: true, recommendedGames: [] }));
         const recommendations = await getRecommendations({
-          games: get().selectedGames.map((g) => g.tracking_id),
+          games: games,
         });
         set((state) => ({
           ...state,
