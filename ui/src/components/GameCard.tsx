@@ -11,8 +11,8 @@ import {
 } from "./ui/carousel";
 import { AsyncImage } from "loadable-image";
 import { useGameState } from "@/lib/gameState";
-import { cn } from "@/lib/utils";
 import { GameModal } from "./GameModal";
+import { GameScore } from "./Score";
 
 export function GameCard({
   game,
@@ -45,7 +45,6 @@ export function GameCard({
               <CarouselPrevious />
               <CarouselNext />
             </Carousel>
-
             <div className="absolute top-4 left-4 bg-primary px-3 py-1 rounded-full text-primary-foreground text-sm font-medium">
               {[
                 game.metadata.windows && "Windows",
@@ -55,18 +54,7 @@ export function GameCard({
                 .filter((a) => a)
                 .join(", ")}
             </div>
-            {game.metadata.metacritic_score > 0 ? (
-              <div
-                className={cn({
-                  "absolute top-4 right-4 px-3 py-1 rounded-full text-primary-foreground text-sm font-medium bg-red-500":
-                    true,
-                  "bg-yellow-500": game.metadata.metacritic_score >= 50,
-                  "bg-green-500": game.metadata.metacritic_score >= 70,
-                })}
-              >
-                {game.metadata.metacritic_score + "  %"}
-              </div>
-            ) : null}
+            <GameScore game={game} />
           </div>
           <CardContent className="p-6 space-y-4 flex flex-col justify-between">
             <div>

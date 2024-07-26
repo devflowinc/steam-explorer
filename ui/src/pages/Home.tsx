@@ -7,9 +7,14 @@ import { Chunk } from "../lib/types";
 import { SelectedGames } from "../components/SelectedGames";
 import { useGameState } from "@/lib/gameState";
 import { Layout } from "@/components/Layout";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 
 export function Home() {
   const [query, setQuery] = useState("");
+  const [showFree, setShowFree] = useState(true);
+  const [minScore, setMinScore] = useState(0);
+  const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
   const { shownGames, isLoading, getGamesForSearch } = useGameState(
     (state) => ({
@@ -20,8 +25,12 @@ export function Home() {
   );
 
   useEffect(() => {
-    getGamesForSearch(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
+    getGamesForSearch(debouncedSearchTerm, {
+      showFree,
+      minScore,
+      maxScore,
+    });
+  }, [debouncedSearchTerm, showFree, minScore, maxScore]);
 
   return (
     <Layout>
@@ -31,6 +40,41 @@ export function Home() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex grow gap-4">
+          <Slider
+            minStepsBetweenThumbs={1}
+            className="max-w-sm"
+            defaultValue={[minScore, maxScore]}
+            max={100}
+            step={1}
+            onValueCommit={([min, max]) => {
+              setMinScore(min);
+              setMaxScore(max);
+            }}
+          />
+          <label
+            htmlFor="free"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Metacritic Score ({minScore}-{maxScore})
+          </label>
+        </div>
+
+        <div className="flex items-center space-x-2 ">
+          <Checkbox
+            id="free"
+            checked={showFree}
+            onCheckedChange={(value) => setShowFree(value as boolean)}
+          />
+          <label
+            htmlFor="free"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Show free games
+          </label>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 mb-[12rem]">
         {!shownGames?.length && !isLoading ? "Search for some games" : null}
