@@ -1,3 +1,4 @@
+import { Chunk } from "./types";
 import { apiHeaders } from "./utils";
 
 export const getRecommendations = async ({ games }: { games: string[] }) => {
@@ -87,4 +88,31 @@ export const getGames = async ({
   ).then((response) => response.json());
 
   return data.chunks;
+};
+
+export const getFirstLoadGames = async () => {
+  const options = {
+    method: "POST",
+    headers: apiHeaders,
+    body: JSON.stringify({
+      page_size: 29,
+      filters: {
+        must: [
+          {
+            field: "metadata.metacritic_score",
+            range: {
+              gte: 90,
+            },
+          },
+        ],
+      },
+    }),
+  };
+
+  const data = await fetch(
+    "https://api.trieve.ai/api/chunks/scroll",
+    options
+  ).then((response) => response.json());
+
+  return data.chunks.map((chunk: Chunk) => ({ chunk }));
 };

@@ -12,7 +12,7 @@ export const SelectedGames = () => {
       clearSelectedGames: state.clearSelectedGames,
     }));
   return (
-    <div className="fixed bottom-0 w-full left-0 bg-background py-8">
+    <div className="fixed bottom-0 w-full left-0 bg-background py-8 border-t-2 border-x-muted-foreground shadow">
       <div className="container sm:flex items-center justify-between">
         <div className="flex flex-col">
           Games Selected

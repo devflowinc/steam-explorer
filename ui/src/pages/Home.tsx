@@ -36,7 +36,7 @@ export function Home() {
     <Layout>
       <Input
         type="search"
-        placeholder="Sonic"
+        placeholder="Type a keyword or describe the game you'd love to try out..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
@@ -77,17 +77,6 @@ export function Home() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 mb-[12rem]">
-        {!shownGames?.length && !isLoading ? (
-          <div className="flex flex-col items-center gap-2 justify-center col-span-7 mt-12">
-            <h2 className="font-bold text-xl mb-4">Search for some games</h2>
-            <h3 className="text-balance font-semibold">
-              Add them to your selected games
-            </h3>
-            <h3 className="text-balance font-semibold">
-              We will give you some gaming suggestions ✨
-            </h3>
-          </div>
-        ) : null}
         {isLoading ? (
           <div className="flex justify-center items-center mt-12 col-span-4">
             <Loading />

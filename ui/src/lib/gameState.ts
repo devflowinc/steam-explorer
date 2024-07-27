@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { APIResponse, Chunk } from "./types";
-import { getGames, getRecommendations } from "./api";
+import { getFirstLoadGames, getGames, getRecommendations } from "./api";
 
 interface GameState {
   selectedGames: Chunk[];
@@ -26,9 +26,16 @@ export const useGameState = create<GameState>()((set) => ({
   isLoading: false,
   shownGames: [],
   getGamesForSearch: async (term: string, filters: any) => {
+    set(() => ({ isLoading: true }));
     if (term) {
-      set(() => ({ isLoading: true }));
       const games = await getGames({ searchTerm: term, filters });
+      set(() => ({
+        shownGames: games,
+        isLoading: false,
+      }));
+    } else {
+      const games = await getFirstLoadGames();
+      console.log(games);
       set(() => ({
         shownGames: games,
         isLoading: false,
