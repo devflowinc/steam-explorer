@@ -116,3 +116,20 @@ export const getFirstLoadGames = async () => {
 
   return data.chunks.map((chunk: Chunk) => ({ chunk }));
 };
+
+export const getSuggestedQueries = async ({ term }: { term: string }) => {
+  const options = {
+    method: "POST",
+    headers: apiHeaders,
+    body: JSON.stringify({
+      query: term,
+    }),
+  };
+
+  const data = await fetch(
+    "https://api.trieve.ai/api/chunk/suggestions",
+    options
+  ).then((response) => response.json());
+
+  return data.queries.slice(0, 4);
+};

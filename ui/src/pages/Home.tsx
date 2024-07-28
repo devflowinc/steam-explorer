@@ -9,6 +9,7 @@ import { useGameState } from "@/lib/gameState";
 import { Layout } from "@/components/Layout";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
 
 export function Home() {
   const [query, setQuery] = useState("");
@@ -16,13 +17,13 @@ export function Home() {
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
-  const { shownGames, isLoading, getGamesForSearch } = useGameState(
-    (state) => ({
+  const { shownGames, isLoading, getGamesForSearch, suggestedQueries } =
+    useGameState((state) => ({
       shownGames: state.shownGames,
       isLoading: state.isLoading,
       getGamesForSearch: state.getGamesForSearch,
-    })
-  );
+      suggestedQueries: state.suggestedQueries,
+    }));
 
   useEffect(() => {
     getGamesForSearch(debouncedSearchTerm, {
@@ -40,6 +41,28 @@ export function Home() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
+
+      {suggestedQueries.length ? (
+        <div className="flex gap-4 items-center">
+          <span className="text-sm text-muted-foreground">
+            Suggested queries:
+          </span>
+          <ul className="flex items-center gap-2 my-4">
+            {suggestedQueries.map((query) => (
+              <li>
+                <Badge
+                  className="cursor-pointer"
+                  onClick={() => setQuery(query)}
+                  variant={"secondary"}
+                >
+                  {query}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <div className="mt-4 flex items-center justify-between">
         <div className="flex grow gap-4">
           <Slider

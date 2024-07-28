@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { APIResponse, Chunk } from "./types";
-import { getFirstLoadGames, getGames, getRecommendations } from "./api";
+import {
+  getFirstLoadGames,
+  getGames,
+  getRecommendations,
+  getSuggestedQueries,
+} from "./api";
 
 interface GameState {
   selectedGames: Chunk[];
@@ -14,11 +19,13 @@ interface GameState {
   getRecommendedGames: (games: string) => void;
   clearSelectedGames: () => void;
   removeSelectedGame: (id: string) => void;
+  suggestedQueries: string[];
 }
 
 export const useGameState = create<GameState>()((set) => ({
   recommendedGames: {},
   selectedGames: [],
+  suggestedQueries: [],
   addGame: (game) =>
     set((state) => ({
       selectedGames: [...state.selectedGames, game],
@@ -28,16 +35,18 @@ export const useGameState = create<GameState>()((set) => ({
   getGamesForSearch: async (term: string, filters: any) => {
     set(() => ({ isLoading: true }));
     if (term) {
+      const suggestedQueries = await getSuggestedQueries({ term });
       const games = await getGames({ searchTerm: term, filters });
       set(() => ({
         shownGames: games,
+        suggestedQueries,
         isLoading: false,
       }));
     } else {
       const games = await getFirstLoadGames();
-      console.log(games);
       set(() => ({
         shownGames: games,
+        suggestedQueries: [],
         isLoading: false,
       }));
     }
