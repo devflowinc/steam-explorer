@@ -1,4 +1,4 @@
-import { createClient } from 'redis';
+import { createClient } from "redis";
 import fs from "fs";
 import axios from "axios";
 import path from "path";
@@ -12,23 +12,13 @@ import {
   DEFAULT_SLEEP,
   DEFAULT_RETRIES,
   DEFAULT_AUTOSAVE,
-  DEFAULT_TIMEOUT,
   DEFAULT_CURRENCY,
   DEFAULT_LANGUAGE,
   INFO,
-  WARNING,
   ERROR,
   EXCEPTION,
 } from "./consts.js";
-import {
-  log,
-  progressBar,
-  sanitizeText,
-  priceToFloat,
-  getLanguages,
-  getGamePkgs,
-  doRequest
-} from "./utils.js";
+import { log, progressBar, doRequest } from "./utils.js";
 
 let redisClient = null;
 
@@ -125,7 +115,7 @@ async function scraper(dataset, notreleased, discarted, args, appIDs = null) {
     const total = apps.length;
     let count = 0;
 
-    await redisClient.lPush('appsToVisit', apps);
+    await redisClient.lPush("appsToVisit", apps);
 
     progressBar("Scraping", total, total);
     process.stdout.write("\r\n");
@@ -205,12 +195,12 @@ async function scraper(dataset, notreleased, discarted, args, appIDs = null) {
   parser.add_argument("-R", "--redis-uri", {
     type: "str",
     required: true,
-    help: "Full redis uri ex: redis://127.0.0.1"
+    help: "Full redis uri ex: redis://127.0.0.1",
   });
   const args = parser.parse_args();
 
   redisClient = await createClient({
-    url: args.redis_uri
+    url: args.redis_uri,
   }).connect();
 
   if (args.h || args.help) {

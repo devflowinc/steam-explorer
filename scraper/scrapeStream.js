@@ -1,26 +1,15 @@
 import { ArgumentParser } from "argparse";
-import { createClient } from 'redis';
+import { createClient } from "redis";
 import {
   doRequest,
   sanitizeText,
   getLanguages,
   getGamePkgs,
-  priceToFloat
+  priceToFloat,
 } from "./utils.js";
 import {
-  DEFAULT_INFILE,
-  DEFAULT_OUTFILE,
-  APPLIST_FILE,
-  DISCARTED_FILE,
-  NOTRELEASED_FILE,
-  DEFAULT_SLEEP,
-  DEFAULT_RETRIES,
-  DEFAULT_AUTOSAVE,
-  DEFAULT_TIMEOUT,
   DEFAULT_CURRENCY,
   DEFAULT_LANGUAGE,
-  INFO,
-  WARNING,
   ERROR,
   EXCEPTION,
 } from "./consts.js";
@@ -168,7 +157,6 @@ function parseSteamGame(app) {
 }
 
 (async () => {
-
   const parser = new ArgumentParser({
     description: "Steam games scraper",
   });
@@ -176,43 +164,45 @@ function parseSteamGame(app) {
   parser.add_argument("-R", "--redis-uri", {
     type: "str",
     required: true,
-    help: "Full redis uri ex: redis://127.0.0.1"
+    help: "Full redis uri ex: redis://127.0.0.1",
   });
 
   const args = parser.parse_args();
 
   redisClient = await createClient({
-    url: args.redis_uri
+    url: args.redis_uri,
   }).connect();
 
   let successRequestCount = 0;
   let errorRequestCount = 0;
 
   while (true) {
-    const { element, key } = await redisClient.brPop('appsToVisit', 0, 0);
-      console.log("hi");
-    const appID = element
-    if (!await redisClient.hExists("dataset", appID) && !await redisClient.sIsMember("discarted", appID)) {
-      if (args.released && await redisClient.sIsMemmber("notreleased", appID)) continue;
-
+    const { element } = await redisClient.brPop("appsToVisit", 0, 0);
+    const appID = element;
+    if (
+      !(await redisClient.hExists("dataset", appID)) &&
+      !(await redisClient.sIsMember("discarted", appID))
+    ) {
+      if (args.released && (await redisClient.sIsMemmber("notreleased", appID)))
+        continue;
       const app = await steamRequest(
         appID.toString(),
-        Math.min(4, args.sleep),
+        Math.min(4, args.sleep ?? 120),
         successRequestCount,
         errorRequestCount,
-        args.retries
+        args.retries || 5
       );
       if (app) {
         const game = parseSteamGame(app);
         if (game.release_date !== "") {
           const extra = args.steamspy
             ? await steamSpyRequest(
-              appID.toString(),
-              Math.min(4, args.sleep),
-              successRequestCount,
-              errorRequestCount,
-              args.retries
-            )
+                appID.toString(),
+                Math.min(4, args.sleep),
+                successRequestCount,
+                errorRequestCount,
+                args.retries
+              )
             : null;
 
           if (args.steamspy && extra) {
@@ -222,8 +212,8 @@ function parseSteamGame(app) {
               positive: extra.positive,
               negative: extra.negative,
               estimated_owners: extra.owners
-              .replace(/,/g, "")
-              .replace("..", "-"),
+                .replace(/,/g, "")
+                .replace("..", "-"),
               average_playtime_forever: extra.average_forever,
               average_playtime_2weeks: extra.average_2weeks,
               median_playtime_forever: extra.median_forever,
@@ -246,25 +236,22 @@ function parseSteamGame(app) {
               tags: [],
             });
           }
-          
-          console.log("setting")
-          await redisClient.hSet("dataset", appID, JSON.stringify(game))
+
+          console.log("setting ", appID);
+          await redisClient.hSet("dataset", appID, JSON.stringify(game));
 
           if (await redisClient.sIsMember("notreleased", appID)) {
-            await redisClient.sRem("notreleased", appID)
+            await redisClient.sRem("notreleased", appID);
           }
         } else {
-          if (!await redisClient.sIsMember("notreleased", appID)) {
-            await redisClient.sIsMember("notreleased", appID)
+          if (!(await redisClient.sIsMember("notreleased", appID))) {
+            await redisClient.sIsMember("notreleased", appID);
             await redisClient.sAdd("notreleased", appID);
           }
         }
       } else {
-        await redisClient.sAdd("discarted", appID)
+        await redisClient.sAdd("discarted", appID);
       }
-
     }
   }
-
 })();
-
