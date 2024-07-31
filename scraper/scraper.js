@@ -1,6 +1,5 @@
 import { createClient } from "redis";
 import fs from "fs";
-import axios from "axios";
 import path from "path";
 import { ArgumentParser } from "argparse";
 import {
@@ -18,7 +17,7 @@ import {
   ERROR,
   EXCEPTION,
 } from "./consts.js";
-import { log, progressBar, doRequest } from "./utils.js";
+import { log, doRequest } from "./utils.js";
 
 let redisClient = null;
 
@@ -105,24 +104,10 @@ async function scraper(dataset, notreleased, discarted, args, appIDs = null) {
   }
 
   if (apps.length > 0) {
-    let gamesAdded = 0;
-    let gamesNotReleased = 0;
-    let gamesDiscarted = 0;
-    let successRequestCount = 0;
-    let errorRequestCount = 0;
-
     shuffle(apps);
-    const total = apps.length;
-    let count = 0;
 
     await redisClient.lPush("appsToVisit", apps);
 
-    progressBar("Scraping", total, total);
-    process.stdout.write("\r\n");
-    log(
-      INFO,
-      `Scrape completed: ${gamesAdded} new games added, ${gamesNotReleased} not released, ${gamesDiscarted} discarted`
-    );
     saveJSON(dataset, args.outfile);
     saveJSON(discarted, DISCARTED_FILE);
     saveJSON(notreleased, NOTRELEASED_FILE);
@@ -133,11 +118,6 @@ async function scraper(dataset, notreleased, discarted, args, appIDs = null) {
 }
 
 (async () => {
-  log(
-    INFO,
-    "Steam Games Scraper 1.2.2 by Martin Bustos <fronkongames@gmail.com>"
-  );
-
   const parser = new ArgumentParser({
     description: "Steam games scraper",
   });
@@ -250,6 +230,4 @@ async function scraper(dataset, notreleased, discarted, args, appIDs = null) {
       `An exception of type ${error.name} occurred. Traceback: ${error.stack}`
     );
   }
-
-  log(INFO, "Done");
 })();

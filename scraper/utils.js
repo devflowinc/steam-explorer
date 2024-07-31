@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import axios from "axios";
-import { 
+import {
   LOG_ICON,
   WARNING,
   ERROR,
@@ -16,20 +16,6 @@ import {
 export function log(level, message) {
   console.log(
     `[${LOG_ICON[level]} ${DateTime.now().toFormat("HH:mm:ss")}] ${message}.`
-  );
-}
-
-export function progressBar(title, count, total) {
-  const barLen = 75;
-  const filledLen = Math.floor((barLen * count) / total);
-
-  const percents = ((100.0 * count) / total).toFixed(2);
-  const bar = "█".repeat(filledLen) + "░".repeat(barLen - filledLen);
-
-  process.stdout.write(
-    `[i ${DateTime.now().toFormat(
-      "HH:mm:ss"
-    )}] ${title} ${bar} ${percents}% (CTRL+C to exit).\r`
   );
 }
 
@@ -93,7 +79,6 @@ export const getGamePkgs = (app) => {
   return packages;
 };
 
-
 export async function doRequest(
   url,
   parameters = null,
@@ -140,4 +125,4 @@ export async function doRequest(
       process.exit();
     }
   }
-};
+}
