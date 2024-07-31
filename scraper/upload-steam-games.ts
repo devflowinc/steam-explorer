@@ -78,14 +78,25 @@ function jobToSearchableString(job: GameData): string {
       searchableString += `${prefix}${field}${postfix}`;
     }
   };
-
   // Process each field with a safe check and appropriate formatting
   addField(job["about_the_game"], "Game Description: ");
   addField(job["name"], "Game Name: ");
-  addField(job["categories"].join(","), "Game Categories: ");
-  addField(job["developers"].join(","), "Game Developers: ");
-  addField(job["publishers"].join(","), "Game Publishers: ");
-  addField(Object.keys(job["tags"]).join(","), "Game Tags: ");
+
+  if (job["categories"]) {
+    addField(job["categories"].join(","), "Game Categories: ");
+  }
+  
+  if (job["developers"]) {
+    addField(job["developers"].join(","), "Game Developers: ");
+  }
+
+  if (job["publishers"]) {
+    addField(job["publishers"].join(","), "Game Publishers: ");
+  }
+
+  if (job["tags"]) {
+    addField(Object.keys(job["tags"]).join(","), "Game Tags: ");
+  }
 
   return searchableString.trim();
 }
