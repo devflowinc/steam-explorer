@@ -1,5 +1,17 @@
 import { DateTime } from "luxon";
-import { LOG_ICON } from "./consts.js";
+import axios from "axios";
+import { 
+  LOG_ICON,
+  WARNING,
+  ERROR,
+  EXCEPTION,
+  DEFAULT_SLEEP,
+  DEFAULT_RETRIES,
+  DEFAULT_AUTOSAVE,
+  DEFAULT_TIMEOUT,
+  DEFAULT_CURRENCY,
+  DEFAULT_LANGUAGE,
+} from "./consts.js";
 
 export function log(level, message) {
   console.log(
@@ -79,4 +91,53 @@ export const getGamePkgs = (app) => {
   }
 
   return packages;
+};
+
+
+export async function doRequest(
+  url,
+  parameters = null,
+  retryTime = 5,
+  successCount = 0,
+  errorCount = 0,
+  retries = 0
+) {
+  try {
+    const response = await axios.get(url, {
+      params: parameters,
+      timeout: DEFAULT_TIMEOUT,
+    });
+
+    if (response.status === 200) {
+      errorCount = 0;
+      successCount += 1;
+      if (successCount > retryTime) {
+        retryTime = Math.min(5, retryTime / 2);
+        successCount = 0;
+      }
+      return response;
+    } else {
+      throw new Error(response.statusText);
+    }
+  } catch (error) {
+    log(EXCEPTION, `An exception of type ${error.name} occurred.`);
+    if (retries === 0 || errorCount < retries) {
+      errorCount += 1;
+      successCount = 0;
+      retryTime = Math.min(retryTime * 2, 500);
+      log(WARNING, `${error.message}, retrying in ${retryTime} seconds`);
+      await new Promise((resolve) => setTimeout(resolve, retryTime * 100));
+      return doRequest(
+        url,
+        parameters,
+        retryTime,
+        successCount,
+        errorCount,
+        retries
+      );
+    } else {
+      console.log("[!] No more retries.");
+      process.exit();
+    }
+  }
 };
