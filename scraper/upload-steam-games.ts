@@ -1,6 +1,8 @@
-require("dotenv").config();
+import dotenev from "dotenv"
+dotenev.config()
 import fs from "fs";
 import json from "big-json";
+import { createClient } from 'redis';
 
 // Define the data structure for your CSV data
 interface GameData {
@@ -58,6 +60,10 @@ interface GameData {
   };
 }
 
+const redisClient = await createClient({
+  url: process.env.REDIS_URI
+}).connect();
+
 // Function to transform GameData to a searchable string
 function jobToSearchableString(job: GameData): string {
   let searchableString = "";
@@ -85,11 +91,14 @@ function jobToSearchableString(job: GameData): string {
 }
 
 async function processGameData() {
-  const readStream = fs.createReadStream("./data/games.json");
-  const parseStream = json.createParseStream();
-  parseStream.on("data", async function (items: { [id: string]: GameData }) {
+    let items = await redisClient.hVals("dataset");
+
     const createChunkData = Object.keys(items).map((i) => {
-      const item = items[i];
+      const unserializedItem = items[i];
+      console.log(unserializedItem);
+      const item = JSON.parse(unserializedItem);
+      
+      
       return {
         chunk_html: jobToSearchableString(item),
         link: `https://store.steampowered.com/app/${i}` ?? "",
@@ -105,7 +114,8 @@ async function processGameData() {
           ? new Date(item["release_date"]).toISOString()
           : new Date().toISOString(),
         upsert_by_tracking_id: true,
-      };
+       };
+
     });
 
     const chunkSize = 50;
@@ -135,9 +145,6 @@ async function processGameData() {
     }
 
     return items;
-  });
-
-  readStream.pipe(parseStream as any);
 }
 processGameData().catch((error) => {
   console.error(`Error processing file:`, error);
