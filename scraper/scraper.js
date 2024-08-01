@@ -11,18 +11,24 @@ import { log, doRequest, shuffle } from "./utils.js";
 
 let redisClient = null;
 
-async function scraper() {
+async function scraper(args) {
   let apps = [];
-  log(INFO, "Requesting list of games from Steam");
-  const response = await doRequest(
-    "http://api.steampowered.com/ISteamApps/GetAppList/v2/"
-  );
-  if (response) {
-    await new Promise((res) => setTimeout(res, args.sleep * 1000));
-    const data = response.data;
-    apps = data.applist.apps.map((app) => app.appid.toString());
+  const exists = await redisClient.exists("appsToVisit");
+  if (!exists) {
+    log(INFO, "Requesting list of games from Steam");
+    const response = await doRequest(
+      "http://api.steampowered.com/ISteamApps/GetAppList/v2/"
+    );
+    if (response) {
+      await new Promise((res) => setTimeout(res, args.sleep * 1000));
+      const data = response.data;
+      apps = data.applist.apps.map((app) => app.appid.toString());
+    }
+  } else {
+    const appsFromRedis = await redisClient.lRange("appsToVisit", 0, -1);
+    log(INFO, `Found ${appsFromRedis.length} apps on redis`);
+    apps = appsFromRedis;
   }
-
   if (apps.length > 0) {
     shuffle(apps);
 
@@ -74,14 +80,8 @@ async function scraper() {
     process.exit();
   }
 
-  log(
-    INFO,
-    `Dataset loaded with ${Object.keys(dataset).length} games` ||
-      "New dataset created"
-  );
-
   try {
-    await scraper();
+    await scraper(args);
   } catch (error) {
     log(
       EXCEPTION,

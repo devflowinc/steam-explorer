@@ -1,17 +1,6 @@
 import { DateTime } from "luxon";
 import axios from "axios";
-import {
-  LOG_ICON,
-  WARNING,
-  ERROR,
-  EXCEPTION,
-  DEFAULT_SLEEP,
-  DEFAULT_RETRIES,
-  DEFAULT_AUTOSAVE,
-  DEFAULT_TIMEOUT,
-  DEFAULT_CURRENCY,
-  DEFAULT_LANGUAGE,
-} from "./consts.js";
+import { LOG_ICON, WARNING, EXCEPTION, DEFAULT_TIMEOUT } from "./consts.js";
 
 export function log(level, message) {
   console.log(
