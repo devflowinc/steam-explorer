@@ -1,12 +1,6 @@
 import { ArgumentParser } from "argparse";
 import { createClient } from "redis";
-import {
-  doRequest,
-  sanitizeText,
-  getLanguages,
-  getGamePkgs,
-  priceToFloat,
-} from "./utils.js";
+import { doRequest, log, parseSteamGame } from "./utils.js";
 import {
   DEFAULT_CURRENCY,
   DEFAULT_LANGUAGE,
@@ -102,60 +96,6 @@ async function steamSpyRequest(
   }
 }
 
-const getDate = (app) => {
-  try {
-    return app.release_date && !app.release_date.coming_soon
-      ? new Date(app.release_date.date).toISOString()
-      : "";
-  } catch {
-    return "";
-  }
-};
-
-function parseSteamGame(app) {
-  return {
-    name: app.name.trim(),
-    release_date: getDate(app),
-    dlc_count: app.dlc ? app.dlc.length : 0,
-    detailed_description: app.detailed_description?.trim() ?? "",
-    price:
-      app.is_free || !app.price_overview
-        ? 0.0
-        : priceToFloat(app.price_overview.final_formatted),
-    about_the_game: app.about_the_game?.trim() ?? "",
-    short_description: app.short_description?.trim() ?? "",
-    reviews: app.reviews?.trim() ?? "",
-    platforms: {
-      windows: app.platforms?.windows,
-      mac: app.platforms?.mac,
-      linux: app.platforms?.linux,
-    },
-    header_image: app.header_image?.trim() ?? "",
-    website: app.website?.trim() ?? "",
-    metacritic_score: app.metacritic ? parseInt(app.metacritic.score) : 0,
-    metacritic_url: app.metacritic?.url ?? "",
-    achievements: app.achievements ? parseInt(app.achievements.total) : 0,
-    recommendations: app.recommendations?.total ?? 0,
-    notes: app.content_descriptors?.notes ?? "",
-    developers: app.developers?.map((developer) => developer.trim()),
-    publishers: app.publishers?.map((publisher) => publisher.trim()),
-    categories: app.categories?.map((category) =>
-      category?.description?.trim()
-    ),
-    genres: app.genres?.map((genres) => genres?.description?.trim()),
-    screenshots: app.screenshots?.map((screenshot) => screenshot?.path_full),
-    detailed_description: sanitizeText(app.detailed_description),
-    about_the_game: sanitizeText(app.about_the_game),
-    short_description: sanitizeText(app.short_description),
-    reviews: sanitizeText(app.reviews),
-    notes: sanitizeText(app.notes),
-    movies: app.movies?.map((movie) => movie?.mp4?.max),
-    ...getLanguages(app),
-    packages: getGamePkgs(app),
-    adult_game: app.ratings?.steam_germany?.banned === "1",
-  };
-}
-
 (async () => {
   const parser = new ArgumentParser({
     description: "Steam games scraper",
@@ -175,7 +115,6 @@ function parseSteamGame(app) {
 
   let successRequestCount = 0;
   let errorRequestCount = 0;
-
   while (true) {
     const { element } = await redisClient.brPop("appsToVisit", 0, 0);
     const appID = element;
@@ -187,10 +126,10 @@ function parseSteamGame(app) {
         continue;
       const app = await steamRequest(
         appID.toString(),
-        Math.min(4, args.sleep ?? 120),
+        Math.min(10, args.sleep ?? 120),
         successRequestCount,
         errorRequestCount,
-        args.retries || 5
+        args.retries || 10
       );
       if (app) {
         const game = parseSteamGame(app);
