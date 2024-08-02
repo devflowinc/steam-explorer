@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+
+  queuer:
+    image: trieve/steamdb-queuer
+    build:
+      context: .
+      dockerfile: Dockerfile.queuer
+
+  scrapeSteam:
+    image: trieve/steamdb-scraper
+    build:
+      context: .
+      dockerfile: Dockerfile.scraper
+
+  uploader:
+    image: trieve/steamdb-uploader
+    build:
+      context: .
+      dockerfile: Dockerfile.uploader
+    environment:
+      - REDIS_URI=${REDIS_URI}
+      - TRIEVE_DATASET=${TRIEVE_DATASET}
+      - TRIEVE_KEY=${TRIEVE_KEY}
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - redis_network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  redis_network:
+    driver: bridge
