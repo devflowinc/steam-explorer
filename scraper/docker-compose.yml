@@ -7,12 +7,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.queuer
+    entrypoint: "node queuer.js -R ${REDIS_URI}"
 
   scrapeSteam:
     image: trieve/steamdb-scraper
     build:
       context: .
       dockerfile: Dockerfile.scraper
+    entrypoint: "node queuer.js -R ${REDIS_URI}"
 
   uploader:
     image: trieve/steamdb-uploader
@@ -23,6 +25,7 @@ services:
       - REDIS_URI=${REDIS_URI}
       - TRIEVE_DATASET=${TRIEVE_DATASET}
       - TRIEVE_KEY=${TRIEVE_KEY}
+    entrypoint: "yarn build"
 
   redis:
     image: redis:latest

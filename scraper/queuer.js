@@ -88,4 +88,5 @@ async function scraper(args) {
       `An exception of type ${error.name} occurred. Traceback: ${error.stack}`
     );
   }
+  process.exit(0) // if you don't close yourself this will run forever
 })();
