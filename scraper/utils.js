@@ -165,7 +165,7 @@ export async function doRequest(
       throw new Error(response.statusText);
     }
   } catch (error) {
-    log(EXCEPTION, `An exception of type ${error.name} occurred.`);
+    log(EXCEPTION, `An exception of type ${error.name} occurred. on ${url}`);
     if (retries === 0 || errorCount < retries) {
       errorCount += 1;
       successCount = 0;

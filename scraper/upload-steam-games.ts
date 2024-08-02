@@ -1,8 +1,8 @@
 import dotenev from "dotenv"
 dotenev.config()
-import fs from "fs";
-import json from "big-json";
 import { createClient } from 'redis';
+
+const chunkSize = "50";
 
 // Define the data structure for your CSV data
 interface GameData {
@@ -85,7 +85,7 @@ function jobToSearchableString(job: GameData): string {
   if (job["categories"]) {
     addField(job["categories"].join(","), "Game Categories: ");
   }
-  
+
   if (job["developers"]) {
     addField(job["developers"].join(","), "Game Developers: ");
   }
@@ -102,14 +102,19 @@ function jobToSearchableString(job: GameData): string {
 }
 
 async function processGameData() {
-    let items = await redisClient.hVals("dataset");
+  while (true) {
+    let items = await redisClient.sendCommand(['rpop', 'newGames', chunkSize]);
+    if (!items) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      continue
+    }
 
-    const createChunkData = Object.keys(items).map((i) => {
-      const unserializedItem = items[i];
-      console.log(unserializedItem);
-      const item = JSON.parse(unserializedItem);
-      
-      
+    const createChunkData = await Promise.all(Object.values(items).map(async (i) => {
+      const unserializedItem = await redisClient.hmGet("dataset", i);
+      console.log("it");
+      const item = JSON.parse(unserializedItem[0]);
+      console.log("it", jobToSearchableString(item));
+
       return {
         chunk_html: jobToSearchableString(item),
         link: `https://store.steampowered.com/app/${i}` ?? "",
@@ -125,38 +130,32 @@ async function processGameData() {
           ? new Date(item["release_date"]).toISOString()
           : new Date().toISOString(),
         upsert_by_tracking_id: true,
-       };
+      };
+    }));
 
-    });
+    console.log(createChunkData)
 
-    const chunkSize = 50;
-    const chunkedItems: any[] = [];
-    for (let i = 0; i < createChunkData.length; i += chunkSize) {
-      const chunk = createChunkData.slice(i, i + chunkSize);
-      chunkedItems.push(chunk);
+    try {
+      await fetch("https://api.trieve.ai/api/chunk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "TR-Dataset": process.env.TRIEVE_DATASET as string,
+          Authorization: process.env.TRIEVE_KEY as string,
+        },
+        body: JSON.stringify(createChunkData),
+      })
+        .then((rsp) => rsp.json())
+        .then(console.log)
+    } catch (error) {
+      console.error(`Failed to create chunk`);
+      console.error(error);
     }
-
-    for (const chunk of chunkedItems) {
-      try {
-        await fetch("https://api.trieve.ai/api/chunk", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "TR-Dataset": process.env.TRIEVE_DATASET as string,
-            Authorization: process.env.TRIEVE_KEY as string,
-          },
-          body: JSON.stringify(chunk),
-        })
-          .then((rsp) => rsp.json())
-          .then(console.log);
-      } catch (error) {
-        console.error(`Failed to create chunk`);
-        console.error(error);
-      }
-    }
-
-    return items;
+  }
 }
-processGameData().catch((error) => {
+processGameData().then(() => process.exit(0)
+).catch((error) => {
+
   console.error(`Error processing file:`, error);
+  process.exit(1)
 });

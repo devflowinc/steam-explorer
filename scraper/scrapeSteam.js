@@ -122,7 +122,7 @@ async function steamSpyRequest(
       !(await redisClient.hExists("dataset", appID)) &&
       !(await redisClient.sIsMember("discarted", appID))
     ) {
-      if (args.released && (await redisClient.sIsMemmber("notreleased", appID)))
+      if (args.released && (await redisClient.sIsMember("notreleased", appID)))
         continue;
       const app = await steamRequest(
         appID.toString(),
@@ -179,7 +179,7 @@ async function steamSpyRequest(
           console.log("setting ", appID);
           await redisClient.hSet("dataset", appID, JSON.stringify(game));
           await redisClient.hSet("dataset", appID, JSON.stringify(game))
-          await redisClient.lpush("newGames", appID);
+          await redisClient.lPush("newGames", appID);
 
           if (await redisClient.sIsMember("notreleased", appID)) {
             await redisClient.sRem("notreleased", appID);
