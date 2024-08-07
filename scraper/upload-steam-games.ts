@@ -1,6 +1,6 @@
-import dotenev from "dotenv"
-dotenev.config()
-import { createClient } from 'redis';
+import dotenev from "dotenv";
+dotenev.config();
+import { createClient } from "redis";
 
 const chunkSize = "50";
 
@@ -16,6 +16,7 @@ interface GameData {
   about_the_game: string;
   short_description: string;
   reviews: string;
+  adultGame: boolean;
   header_image: string;
   website: string;
   support_url: string;
@@ -61,7 +62,7 @@ interface GameData {
 }
 
 const redisClient = await createClient({
-  url: process.env.REDIS_URI
+  url: process.env.REDIS_URI,
 }).connect();
 
 // Function to transform GameData to a searchable string
@@ -103,37 +104,41 @@ function jobToSearchableString(job: GameData): string {
 
 async function processGameData() {
   while (true) {
-    let items = await redisClient.sendCommand(['rpop', 'newGames', chunkSize]);
+    let items = await redisClient.sendCommand(["rpop", "newGames", chunkSize]);
     if (!items) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      continue
+      continue;
     }
 
-    const createChunkData = await Promise.all(Object.values(items).map(async (i) => {
-      const unserializedItem = await redisClient.hmGet("dataset", i);
-      console.log("it");
-      const item = JSON.parse(unserializedItem[0]);
-      console.log("it", jobToSearchableString(item));
+    const createChunkData = await Promise.all(
+      Object.values(items).map(async (i) => {
+        const unserializedItem = await redisClient.hmGet("dataset", i);
+        console.log("it");
+        const item = JSON.parse(unserializedItem[0]);
+        console.log("it", jobToSearchableString(item));
 
-      return {
-        chunk_html: jobToSearchableString(item),
-        link: `https://store.steampowered.com/app/${i}` ?? "",
-        image_urls: item["screenshots"] || null,
-        tracking_id: i ?? "",
-        tag_set: [
-          ...(item["genres"] ?? ""),
-          ...(item["categories"] ?? ""),
-          ...(item["tags"] ? Object.keys(item["tags"]) : []),
-        ],
-        metadata: item,
-        time_stamp: item["release_date"]
-          ? new Date(item["release_date"]).toISOString()
-          : new Date().toISOString(),
-        upsert_by_tracking_id: true,
-      };
-    }));
+        return {
+          chunk_html: jobToSearchableString(item),
+          link: `https://store.steampowered.com/app/${i}` ?? "",
+          image_urls: item["screenshots"] || null,
+          tracking_id: i ?? "",
+          tag_set: [
+            ...(item["genres"] ?? ""),
+            ...(item["categories"] ?? ""),
+            ...(item["tags"] ? Object.keys(item["tags"]) : []),
+            ...(item["adultGame"] ? ["adult_game"] : []),
+          ],
+          metadata: item,
+          time_stamp: item["release_date"]
+            ? new Date(item["release_date"]).toISOString()
+            : new Date().toISOString(),
+          upsert_by_tracking_id: true,
+          weight: item["metacritic_score"] || 1,
+        };
+      })
+    );
 
-    console.log(createChunkData)
+    console.log(createChunkData);
 
     try {
       await fetch("https://api.trieve.ai/api/chunk", {
@@ -146,16 +151,16 @@ async function processGameData() {
         body: JSON.stringify(createChunkData),
       })
         .then((rsp) => rsp.json())
-        .then(console.log)
+        .then(console.log);
     } catch (error) {
       console.error(`Failed to create chunk`);
       console.error(error);
     }
   }
 }
-processGameData().then(() => process.exit(0)
-).catch((error) => {
-
-  console.error(`Error processing file:`, error);
-  process.exit(1)
-});
+processGameData()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(`Error processing file:`, error);
+    process.exit(1);
+  });
