@@ -24,7 +24,7 @@ interface GameState {
   setSelectedCategory: (cat: string) => void;
 }
 
-export const useGameState = create<GameState>()((set, get) => ({
+export const useGameState = create<GameState>()((set) => ({
   selectedCategory: "",
   setSelectedCategory: (cat) => set({ selectedCategory: cat }),
   recommendedGames: {},
