@@ -5,6 +5,7 @@ import { useGameState } from "@/lib/gameState";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Checkbox } from "./ui/checkbox";
 import { Slider } from "./ui/slider";
+import { Combobox } from "./Combobox";
 
 export const SearchAndFilters = () => {
   const [query, setQuery] = useState("");
@@ -12,11 +13,16 @@ export const SearchAndFilters = () => {
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
-  const { getGamesForSearch, suggestedQueries } = useGameState((state) => ({
-    shownGames: state.shownGames,
-    isLoading: state.isLoading,
+  const {
+    getGamesForSearch,
+    suggestedQueries,
+    selectedCategory,
+    setSelectedCategory,
+  } = useGameState((state) => ({
     getGamesForSearch: state.getGamesForSearch,
     suggestedQueries: state.suggestedQueries,
+    selectedCategory: state.selectedCategory,
+    setSelectedCategory: state.setSelectedCategory,
   }));
 
   useEffect(() => {
@@ -24,8 +30,9 @@ export const SearchAndFilters = () => {
       showFree,
       minScore,
       maxScore,
+      selectedCategory,
     });
-  }, [debouncedSearchTerm, showFree, minScore, maxScore]);
+  }, [debouncedSearchTerm, showFree, minScore, maxScore, selectedCategory]);
 
   return (
     <>
@@ -56,7 +63,7 @@ export const SearchAndFilters = () => {
           </ul>
         </div>
       ) : null}
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between gap-4">
         <div className="flex grow gap-4">
           <Slider
             minStepsBetweenThumbs={1}
@@ -76,7 +83,12 @@ export const SearchAndFilters = () => {
             Metacritic Score ({minScore}-{maxScore})
           </label>
         </div>
-
+        <div className="flex items-center space-x-2 ">
+          <Combobox
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+          />
+        </div>
         <div className="flex items-center space-x-2 ">
           <Checkbox
             id="free"

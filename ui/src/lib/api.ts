@@ -36,6 +36,7 @@ type Filters = {
   showFree: boolean;
   minScore: number;
   maxScore: number;
+  selectedCategory: string;
 };
 
 export const getGames = async ({
@@ -51,6 +52,13 @@ export const getGames = async ({
         range: {
           gt: 0,
         },
+      }
+    : null;
+
+  const categories = filters.selectedCategory
+    ? {
+        field: "tag_set",
+        match_any: [filters.selectedCategory],
       }
     : null;
 
@@ -71,6 +79,7 @@ export const getGames = async ({
             },
           },
           removeFree,
+          categories,
         ].filter((a) => a),
       },
       search_type: "hybrid",

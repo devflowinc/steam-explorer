@@ -20,9 +20,13 @@ interface GameState {
   clearSelectedGames: () => void;
   removeSelectedGame: (id: string) => void;
   suggestedQueries: string[];
+  selectedCategory: string;
+  setSelectedCategory: (cat: string) => void;
 }
 
-export const useGameState = create<GameState>()((set) => ({
+export const useGameState = create<GameState>()((set, get) => ({
+  selectedCategory: "",
+  setSelectedCategory: (cat) => set({ selectedCategory: cat }),
   recommendedGames: {},
   selectedGames: [],
   suggestedQueries: [],
@@ -36,7 +40,10 @@ export const useGameState = create<GameState>()((set) => ({
     set(() => ({ isLoading: true }));
     if (term) {
       const [games, suggestedQueries] = await Promise.all([
-        getGames({ searchTerm: term, filters }),
+        getGames({
+          searchTerm: term,
+          filters,
+        }),
         getSuggestedQueries({ term }),
       ]);
 
