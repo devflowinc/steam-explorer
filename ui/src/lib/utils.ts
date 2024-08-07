@@ -15,6 +15,5 @@ export const apiHeaders = {
 
 export const calculateSteamApprovalPercentage = (game: Chunk): number => {
   const total = game.metadata.negative + game.metadata.positive;
-
-  return parseInt(((game.metadata.positive / total) * 100).toFixed());
+  return parseInt(((game.metadata.positive ?? 0 / total ?? 1) * 100).toFixed());
 };

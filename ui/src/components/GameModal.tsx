@@ -1,5 +1,6 @@
 import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { DialogContent, DialogTitle } from "./ui/dialog";
+import { format } from "date-fns";
 import {
   Carousel,
   CarouselContent,
@@ -31,7 +32,7 @@ export const GameModal = ({
         <div>
           <Carousel>
             <CarouselContent>
-              {game.metadata.screenshots.map((image, i) => (
+              {game.metadata.screenshots?.map((image, i) => (
                 <CarouselItem key={i}>
                   <AsyncImage
                     src={image}
@@ -74,7 +75,7 @@ export const GameModal = ({
               {game.metadata.name}
             </DialogTitle>
             <p className="text-muted-foreground">
-              {game.metadata.genres.join(", ")}
+              {game.metadata.genres?.join(", ")}
             </p>
           </div>
           {game.metadata.metacritic_score ? (
@@ -126,25 +127,27 @@ export const GameModal = ({
               </div>
             </a>
           ) : null}
-          <div className="flex gap-2 items-center">
-            <p className="text-muted-foreground text-sm">Steam Reviews</p>
-            <div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <IconThumbUp className="w-5 h-5 fill-primary" />
-                  <span className="text-sm text-muted-foreground">
-                    {game.metadata.positive}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconThumbDown className="w-5 h-5 fill-primary" />
-                  <span className="text-sm text-muted-foreground">
-                    {game.metadata.negative}
-                  </span>
+          {game.metadata.positive || game.metadata.negative ? (
+            <div className="flex gap-2 items-center">
+              <p className="text-muted-foreground text-sm">Steam Reviews</p>
+              <div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <IconThumbUp className="w-5 h-5 fill-primary" />
+                    <span className="text-sm text-muted-foreground">
+                      {game.metadata.positive}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IconThumbDown className="w-5 h-5 fill-primary" />
+                    <span className="text-sm text-muted-foreground">
+                      {game.metadata.negative}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : null}
           {game.metadata.about_the_game ||
           game.metadata.detailed_description ? (
             <div className="grid gap-2">
@@ -166,15 +169,15 @@ export const GameModal = ({
               </div>
               <div className="grid gap-1">
                 <p className="text-muted-foreground">Release Date</p>
-                <p>{game.metadata.release_date}</p>
+                <p>{format(game.metadata.release_date, "dd/MM/yyyy")}</p>
               </div>
               <div className="grid gap-1">
                 <p className="text-muted-foreground">Developer</p>
-                <p>{game.metadata.developers.join(", ")}</p>
+                <p>{game.metadata.developers?.join(", ")}</p>
               </div>
               <div className="grid gap-1">
                 <p className="text-muted-foreground">Publisher</p>
-                <p>{game.metadata.publishers.join(", ")}</p>
+                <p>{game.metadata.publishers?.join(", ")}</p>
               </div>
             </div>
           </div>

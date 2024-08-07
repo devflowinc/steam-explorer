@@ -134,17 +134,15 @@ async function steamSpyRequest(
       if (app) {
         const game = parseSteamGame(app);
         if (game.release_date !== "") {
-          const extra = args.steamspy
-            ? await steamSpyRequest(
-                appID.toString(),
-                Math.min(4, args.sleep),
-                successRequestCount,
-                errorRequestCount,
-                args.retries
-              )
-            : null;
+          const extra = await steamSpyRequest(
+            appID.toString(),
+            Math.min(4, args.sleep),
+            successRequestCount,
+            errorRequestCount,
+            args.retries
+          );
 
-          if (args.steamspy && extra) {
+          if (extra) {
             Object.assign(game, {
               user_score: extra.userscore,
               score_rank: extra.score_rank,
@@ -160,7 +158,7 @@ async function steamSpyRequest(
               peak_ccu: extra.ccu,
               tags: extra.tags,
             });
-          } else if (args.steamspy) {
+          } else {
             Object.assign(game, {
               user_score: 0,
               score_rank: "",
@@ -178,7 +176,7 @@ async function steamSpyRequest(
 
           console.log("setting ", appID);
           await redisClient.hSet("dataset", appID, JSON.stringify(game));
-          await redisClient.hSet("dataset", appID, JSON.stringify(game))
+          await redisClient.hSet("dataset", appID, JSON.stringify(game));
           await redisClient.lPush("newGames", appID);
 
           if (await redisClient.sIsMember("notreleased", appID)) {

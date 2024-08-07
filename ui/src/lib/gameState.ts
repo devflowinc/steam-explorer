@@ -35,13 +35,11 @@ export const useGameState = create<GameState>()((set) => ({
   getGamesForSearch: async (term: string, filters: any) => {
     set(() => ({ isLoading: true }));
     if (term) {
-      const games = await getGames({ searchTerm: term, filters });
-      set(() => ({
-        shownGames: games,
-        isLoading: false,
-      }));
+      const [games, suggestedQueries] = await Promise.all([
+        getGames({ searchTerm: term, filters }),
+        getSuggestedQueries({ term }),
+      ]);
 
-      const suggestedQueries = await getSuggestedQueries({ term });
       set(() => ({
         shownGames: games,
         suggestedQueries,

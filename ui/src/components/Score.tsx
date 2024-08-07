@@ -23,7 +23,9 @@ export const GameScore = ({ game }: { game: Chunk }) => {
             {game.metadata.metacritic_score + "  %"} on Metacritic
           </TooltipContent>
         </>
-      ) : (
+      ) : null}
+      {!game.metadata.metacritic_score &&
+      (game.metadata.positive || game.metadata.negative) ? (
         <>
           <TooltipTrigger asChild>
             <div
@@ -41,7 +43,7 @@ export const GameScore = ({ game }: { game: Chunk }) => {
             {calculateSteamApprovalPercentage(game)} % on steam
           </TooltipContent>
         </>
-      )}
+      ) : null}
     </Tooltip>
   );
 };

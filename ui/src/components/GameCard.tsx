@@ -13,6 +13,7 @@ import { AsyncImage } from "loadable-image";
 import { useGameState } from "@/lib/gameState";
 import { GameModal } from "./GameModal";
 import { GameScore } from "./Score";
+import { format } from "date-fns";
 
 export function GameCard({
   game,
@@ -25,6 +26,9 @@ export function GameCard({
     addGame: state.addGame,
     selectedGames: state.selectedGames,
   }));
+  {
+    console.log(game);
+  }
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -32,7 +36,7 @@ export function GameCard({
           <div className="relative">
             <Carousel>
               <CarouselContent>
-                {game.metadata.screenshots.map((image, i) => (
+                {game.metadata?.screenshots?.map((image, i) => (
                   <CarouselItem key={i}>
                     <AsyncImage
                       src={image}
@@ -47,9 +51,12 @@ export function GameCard({
             </Carousel>
             <div className="absolute top-4 left-4 bg-primary px-3 py-1 rounded-full text-primary-foreground text-sm font-medium">
               {[
-                game.metadata.windows && "Windows",
-                game.metadata.linux && "Linux",
-                game.metadata.mac && "Mac",
+                game.metadata?.windows && "Windows",
+                game.metadata?.linux && "Linux",
+                game.metadata?.mac && "Mac",
+                game.metadata?.platforms?.mac && "Mac",
+                game.metadata?.platforms?.windows && "Windows",
+                game.metadata?.platforms?.linux && "Linux",
               ]
                 .filter((a) => a)
                 .join(", ")}
@@ -58,21 +65,21 @@ export function GameCard({
           </div>
           <CardContent className="p-6 space-y-4 flex flex-col justify-between">
             <div>
-              <span className="text-2xl font-bold">{game.metadata.name}</span>
+              <span className="text-2xl font-bold">{game.metadata?.name}</span>
               <p className="text-muted-foreground text-sm line-clamp-3">
-                {game.metadata.about_the_game ||
-                  game.metadata.detailed_description}
+                {game.metadata?.about_the_game ||
+                  game.metadata?.detailed_description}
               </p>
               <div className="flex items-center gap-2 mt-2 justify-between">
                 <span className="text-2xl font-bold">
-                  ${game.metadata.price}
+                  ${game.metadata?.price}
                 </span>
                 <span className="text-muted-foreground text-sm">
-                  {game.metadata.genres.join(", ")}
+                  {game.metadata?.genres?.join(", ")}
                 </span>
               </div>
               <div className="text-muted-foreground text-sm mt-2">
-                Release Date: {game.metadata.release_date}
+                Release Date: {format(game.metadata.release_date, "dd/MM/yyyy")}
               </div>
             </div>
             {!recommended ? (

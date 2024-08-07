@@ -22,6 +22,11 @@ export interface Chunk {
 }
 
 export interface Metadata {
+  platforms: {
+    linux: boolean;
+    mac: boolean;
+    windows: boolean;
+  };
   about_the_game: string;
   achievements: number;
   average_playtime_2weeks: number;
