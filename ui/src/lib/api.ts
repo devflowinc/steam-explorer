@@ -61,13 +61,8 @@ export const getGames = async ({
       query: searchTerm,
       limit: 29,
       filters: {
+        jsonb_prefilter: false,
         must: [
-          {
-            field: "metadata.positive",
-            range: {
-              gt: 10,
-            },
-          },
           {
             field: "metadata.metacritic_score",
             range: {

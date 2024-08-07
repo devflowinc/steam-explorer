@@ -1,6 +1,8 @@
-require("dotenv").config();
-import fs from "fs";
-import json from "big-json";
+import dotenev from "dotenv"
+dotenev.config()
+import { createClient } from 'redis';
+
+const chunkSize = "50";
 
 // Define the data structure for your CSV data
 interface GameData {
@@ -58,6 +60,10 @@ interface GameData {
   };
 }
 
+const redisClient = await createClient({
+  url: process.env.REDIS_URI
+}).connect();
+
 // Function to transform GameData to a searchable string
 function jobToSearchableString(job: GameData): string {
   let searchableString = "";
@@ -72,24 +78,43 @@ function jobToSearchableString(job: GameData): string {
       searchableString += `${prefix}${field}${postfix}`;
     }
   };
-
   // Process each field with a safe check and appropriate formatting
   addField(job["about_the_game"], "Game Description: ");
   addField(job["name"], "Game Name: ");
-  addField(job["categories"].join(","), "Game Categories: ");
-  addField(job["developers"].join(","), "Game Developers: ");
-  addField(job["publishers"].join(","), "Game Publishers: ");
-  addField(Object.keys(job["tags"]).join(","), "Game Tags: ");
+
+  if (job["categories"]) {
+    addField(job["categories"].join(","), "Game Categories: ");
+  }
+
+  if (job["developers"]) {
+    addField(job["developers"].join(","), "Game Developers: ");
+  }
+
+  if (job["publishers"]) {
+    addField(job["publishers"].join(","), "Game Publishers: ");
+  }
+
+  if (job["tags"]) {
+    addField(Object.keys(job["tags"]).join(","), "Game Tags: ");
+  }
 
   return searchableString.trim();
 }
 
 async function processGameData() {
-  const readStream = fs.createReadStream("./data/games.json");
-  const parseStream = json.createParseStream();
-  parseStream.on("data", async function (items: { [id: string]: GameData }) {
-    const createChunkData = Object.keys(items).map((i) => {
-      const item = items[i];
+  while (true) {
+    let items = await redisClient.sendCommand(['rpop', 'newGames', chunkSize]);
+    if (!items) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      continue
+    }
+
+    const createChunkData = await Promise.all(Object.values(items).map(async (i) => {
+      const unserializedItem = await redisClient.hmGet("dataset", i);
+      console.log("it");
+      const item = JSON.parse(unserializedItem[0]);
+      console.log("it", jobToSearchableString(item));
+
       return {
         chunk_html: jobToSearchableString(item),
         link: `https://store.steampowered.com/app/${i}` ?? "",
@@ -106,39 +131,31 @@ async function processGameData() {
           : new Date().toISOString(),
         upsert_by_tracking_id: true,
       };
-    });
+    }));
 
-    const chunkSize = 50;
-    const chunkedItems: any[] = [];
-    for (let i = 0; i < createChunkData.length; i += chunkSize) {
-      const chunk = createChunkData.slice(i, i + chunkSize);
-      chunkedItems.push(chunk);
+    console.log(createChunkData)
+
+    try {
+      await fetch("https://api.trieve.ai/api/chunk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "TR-Dataset": process.env.TRIEVE_DATASET as string,
+          Authorization: process.env.TRIEVE_KEY as string,
+        },
+        body: JSON.stringify(createChunkData),
+      })
+        .then((rsp) => rsp.json())
+        .then(console.log)
+    } catch (error) {
+      console.error(`Failed to create chunk`);
+      console.error(error);
     }
-
-    for (const chunk of chunkedItems) {
-      try {
-        await fetch("https://api.trieve.ai/api/chunk", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "TR-Dataset": process.env.TRIEVE_DATASET as string,
-            Authorization: process.env.TRIEVE_KEY as string,
-          },
-          body: JSON.stringify(chunk),
-        })
-          .then((rsp) => rsp.json())
-          .then(console.log);
-      } catch (error) {
-        console.error(`Failed to create chunk`);
-        console.error(error);
-      }
-    }
-
-    return items;
-  });
-
-  readStream.pipe(parseStream as any);
+  }
 }
-processGameData().catch((error) => {
+processGameData().then(() => process.exit(0)
+).catch((error) => {
+
   console.error(`Error processing file:`, error);
+  process.exit(1)
 });
