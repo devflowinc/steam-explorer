@@ -131,7 +131,7 @@ async function steamSpyRequest(
         errorRequestCount,
         args.retries || 10
       );
-      if (app) {
+      if (app && app.ratings?.steam_germany?.banned !== "1") {
         const game = parseSteamGame(app);
         if (game.release_date !== "") {
           const extra = await steamSpyRequest(
