@@ -1,19 +1,12 @@
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Chunk } from "@/lib/types";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "./ui/carousel";
-import { AsyncImage } from "loadable-image";
 import { useGameState } from "@/lib/gameState";
 import { GameModal } from "./GameModal";
-import { GameScore } from "./Score";
-import { format } from "date-fns";
+import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Cross1Icon, HeartFilledIcon, HeartIcon } from "@radix-ui/react-icons";
 
 export function GameCard({
   game,
@@ -22,88 +15,123 @@ export function GameCard({
   game: Chunk;
   recommended?: boolean;
 }) {
-  const { addGame, selectedGames } = useGameState((state) => ({
+  const { addGame, addNeg, selectedGames } = useGameState((state) => ({
     addGame: state.addGame,
+    addNeg: state.addNeg,
     selectedGames: state.selectedGames,
   }));
-  {
-    console.log(game);
-  }
+
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Card className="w-full max-w-sm bg-card text-card-foreground shadow-lg cursor-pointer">
-          <div className="relative">
-            <Carousel>
-              <CarouselContent>
-                {game.metadata?.screenshots?.map((image, i) => (
-                  <CarouselItem key={i}>
-                    <AsyncImage
-                      src={image}
-                      className="w-full h-[300px] object-cover rounded-t-lg"
-                      alt="Game Cover Art"
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-            <div className="absolute top-4 left-4 bg-primary px-3 py-1 rounded-full text-primary-foreground text-sm font-medium">
-              {[
-                game.metadata?.windows && "Windows",
-                game.metadata?.linux && "Linux",
-                game.metadata?.mac && "Mac",
-                game.metadata?.platforms?.mac && "Mac",
-                game.metadata?.platforms?.windows && "Windows",
-                game.metadata?.platforms?.linux && "Linux",
-              ]
-                .filter((a) => a)
-                .join(", ")}
-            </div>
-            <GameScore game={game} />
+      <div className="flex border-2 rounded-md h-20 hover:bg">
+        <img
+          src={game.metadata?.header_image}
+          className="h-full rounded-t-lg"
+          alt="Game Cover Art"
+        />
+        <div className="flex px-2 py-0.5 gap-3 items-stretch w-full">
+          <div className="w-full">
+            <p className="text-lg font-bold">{game.metadata?.name}</p>
+            {!recommended &&
+              <div className="flex">
+                <div className="flex w-full">
+                  <div>
+                    {game.metadata.metacritic_score ? (
+                      <div className="flex gap-2 items-center">
+                        <div className="flex items-center gap-2">
+                          <IconStar
+                            className={cn({
+                              "w-3 h-3 fill-primary": true,
+                              "fill-muted stroke-muted-foreground":
+                                game.metadata.metacritic_score < 20,
+                            })}
+                          />
+                          <IconStar
+                            className={cn({
+                              "w-3 h-3 fill-primary": true,
+                              "fill-muted stroke-muted-foreground":
+                                game.metadata.metacritic_score < 40,
+                            })}
+                          />
+                          <IconStar
+                            className={cn({
+                              "w-3 h-3 fill-primary": true,
+                              "fill-muted stroke-muted-foreground":
+                                game.metadata.metacritic_score < 60,
+                            })}
+                          />
+                          <IconStar
+                            className={cn({
+                              "w-3 h-3 fill-primary": true,
+                              "fill-muted stroke-muted-foreground":
+                                game.metadata.metacritic_score < 80,
+                            })}
+                          />
+                          <IconStar
+                            className={cn({
+                              "w-3 h-3 fill-primary": true,
+                              "fill-muted stroke-muted-foreground":
+                                game.metadata.metacritic_score < 95,
+                            })}
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {game.metadata.metacritic_score}%
+                          </span>
+                        </div>
+                      </div>
+                    ) : null}
+                    {game.metadata.positive || game.metadata.negative ? (
+                      <div className="flex gap-2 items-center">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <IconThumbUp className="w-3 h-3 fill-primary" />
+                            <span className="text-sm text-muted-foreground">
+                              {game.metadata.positive}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <IconThumbDown className="w-3 h-3 fill-primary" />
+                            <span className="text-sm text-muted-foreground">
+                              {game.metadata.negative}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center ml-3 gap-3">
+                    {Object.entries(game.metadata?.tags).sort((a, b) => b[1] - a[1]).slice(0, 3).map((key) => (
+                      <Badge className="bg-amber-600">
+                        {key[0]}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <DialogTrigger asChild>
+                    <Button variant="secondary">
+                      Open
+                    </Button>
+                  </DialogTrigger>
+                  <Button onClick={() => addGame(game)}>
+                    {!!selectedGames.find(
+                      (g) => g.tracking_id == game.tracking_id) &&
+                      <HeartFilledIcon />
+                    }
+                    {!selectedGames.find(
+                      (g) => g.tracking_id == game.tracking_id) &&
+                      <HeartIcon />
+                    }
+                  </Button>
+                  <Button onClick={() => addNeg(game)}>
+                    <Cross1Icon />
+                  </Button>
+                </div>
+              </div>
+            }
           </div>
-          <CardContent className="p-6 space-y-4 flex flex-col justify-between">
-            <div>
-              <span className="text-2xl font-bold">{game.metadata?.name}</span>
-              <p className="text-muted-foreground text-sm line-clamp-3">
-                {game.metadata?.about_the_game ||
-                  game.metadata?.detailed_description}
-              </p>
-              <div className="flex items-center gap-2 mt-2 justify-between">
-                <span className="text-2xl font-bold">
-                  ${game.metadata?.price}
-                </span>
-                <span className="text-muted-foreground text-sm">
-                  {game.metadata?.genres?.join(", ")}
-                </span>
-              </div>
-              <div className="text-muted-foreground text-sm mt-2">
-                Release Date: {format(game.metadata.release_date, "dd/MM/yyyy")}
-              </div>
-            </div>
-            {!recommended ? (
-              <div className="flex gap-4">
-                <Button
-                  className="w-full"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addGame(game);
-                  }}
-                  disabled={
-                    !!selectedGames.find(
-                      (g) => g.tracking_id === game.tracking_id
-                    ) || selectedGames.length > 9
-                  }
-                >
-                  Add Game
-                </Button>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-      </DialogTrigger>
+        </div>
+      </div>
       <GameModal game={game} recommended={recommended} />
     </Dialog>
   );

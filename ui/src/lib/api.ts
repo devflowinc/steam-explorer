@@ -10,16 +10,6 @@ export const getRecommendations = async ({ games }: { games: string[] }) => {
       positive_tracking_ids: games,
       recommend_type: "semantic",
       slim_chunks: true,
-      filters: {
-        must: [
-          {
-            field: "metadata.positive",
-            range: {
-              gt: 10,
-            },
-          },
-        ],
-      },
       strategy: "average_vector",
     }),
   };
@@ -105,11 +95,15 @@ export const getFirstLoadGames = async () => {
           {
             field: "metadata.metacritic_score",
             range: {
-              gte: 90,
+              gte: 50,
             },
           },
         ],
       },
+      sort_by: {
+        direction: "desc",
+        field: "metadata.metacritic_score",
+      }
     }),
   };
 

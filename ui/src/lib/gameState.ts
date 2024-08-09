@@ -9,14 +9,14 @@ import {
 
 interface GameState {
   selectedGames: Chunk[];
+  negativeGames: Chunk[];
   addGame: (game: Chunk) => void;
+  addNeg: (game: Chunk) => void;
   isLoading: boolean;
   shownGames: APIResponse[];
   getGamesForSearch: (term: string, filters: any) => void;
-  recommendedGames: {
-    [games: string]: Chunk[];
-  };
-  getRecommendedGames: (games: string) => void;
+  recommendedGames: Chunk[];
+  getRecommendedGames: (games: string[]) => void;
   clearSelectedGames: () => void;
   removeSelectedGame: (id: string) => void;
   suggestedQueries: string[];
@@ -29,10 +29,15 @@ export const useGameState = create<GameState>()((set) => ({
   setSelectedCategory: (cat) => set({ selectedCategory: cat }),
   recommendedGames: {},
   selectedGames: [],
+  negativeGames: [],
   suggestedQueries: [],
   addGame: (game) =>
     set((state) => ({
       selectedGames: [...state.selectedGames, game],
+    })),
+  addNeg: (game) =>
+    set((state) => ({
+      negativeGames: [...state.selectedGames, game],
     })),
   isLoading: false,
   shownGames: [],
@@ -71,17 +76,15 @@ export const useGameState = create<GameState>()((set) => ({
         (game) => game.tracking_id !== id
       ),
     })),
-  getRecommendedGames: async (games: string) => {
+  getRecommendedGames: async (gamesAsArray: string[]) => {
     set(() => ({ isLoading: true }));
-    const gamesAsArray = games?.split(",") as string[];
     const recommendations = await getRecommendations({
       games: gamesAsArray,
     });
     set((state) => ({
-      recommendedGames: {
-        ...state.recommendedGames,
-        [games]: recommendations,
-      },
+      recommendedGames: [
+        ...recommendations,
+      ],
       isLoading: false,
     }));
   },
