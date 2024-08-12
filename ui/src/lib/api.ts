@@ -1,13 +1,20 @@
 import { Chunk } from "./types";
 import { apiHeaders } from "./utils";
 
-export const getRecommendations = async ({ games }: { games: string[] }) => {
+export const getRecommendations = async ({
+  games,
+  negativeGames,
+}: {
+  games: string[];
+  negativeGames: string[];
+}) => {
   const options = {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
       limit: 20,
       positive_tracking_ids: games,
+      ...(negativeGames.length && { negative_tracking_ids: negativeGames }),
       recommend_type: "semantic",
       slim_chunks: true,
       strategy: "average_vector",
@@ -103,7 +110,7 @@ export const getFirstLoadGames = async () => {
       sort_by: {
         direction: "desc",
         field: "metadata.metacritic_score",
-      }
+      },
     }),
   };
 
