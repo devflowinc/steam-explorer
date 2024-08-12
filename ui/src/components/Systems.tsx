@@ -10,14 +10,15 @@ export const Systems = ({ metadata }: { metadata: Chunk["metadata"] }) => {
         <TooltipTrigger>
           <IconBrandWindows
             className={cn({
-              "text-green-600": metadata.windows,
-              "text-red-600": !metadata.windows,
+              "text-green-600": metadata.platforms.windows,
+              "text-red-600": !metadata.platforms.windows,
               "w-4": true,
             })}
           />
         </TooltipTrigger>
         <TooltipContent>
-          {!metadata.windows ? "Not Available" : "Available"} on Windows
+          {!metadata.platforms.windows ? "Not Available" : "Available"} on
+          Windows
         </TooltipContent>
       </Tooltip>
 
@@ -25,14 +26,14 @@ export const Systems = ({ metadata }: { metadata: Chunk["metadata"] }) => {
         <TooltipTrigger>
           <IconBrandApple
             className={cn({
-              "text-green-600": metadata.mac,
-              "text-red-600": !metadata.mac,
+              "text-green-600": metadata.platforms.mac,
+              "text-red-600": !metadata.platforms.mac,
               "w-4": true,
             })}
           />
         </TooltipTrigger>
         <TooltipContent>
-          {!metadata.mac ? "Not Available" : "Available"} on Mac
+          {!metadata.platforms.mac ? "Not Available" : "Available"} on Mac
         </TooltipContent>
       </Tooltip>
       <Tooltip>
@@ -40,8 +41,8 @@ export const Systems = ({ metadata }: { metadata: Chunk["metadata"] }) => {
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className={cn({
-              "text-green-600": metadata.mac,
-              "text-red-600": !metadata.mac,
+              "text-green-600": metadata.platforms.mac,
+              "text-red-600": !metadata.platforms.mac,
               "w-4": true,
             })}
             viewBox="0 0 32 32"
@@ -53,7 +54,7 @@ export const Systems = ({ metadata }: { metadata: Chunk["metadata"] }) => {
           </svg>
         </TooltipTrigger>
         <TooltipContent>
-          {!metadata.linux ? "Not Available" : "Available"} on Linux
+          {!metadata.platforms.linux ? "Not Available" : "Available"} on Linux
         </TooltipContent>
       </Tooltip>
     </div>

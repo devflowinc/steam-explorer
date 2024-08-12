@@ -2,39 +2,40 @@ import { GameCard } from "@/components/GameCard";
 import { Loading } from "@/components/Loading";
 import { useGameState } from "@/lib/gameState";
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
 export const Recs = () => {
-  const { getRecommendedGames, recommendedGames, isLoading, selectedGames } = useGameState(
-    (state) => ({
-      getRecommendedGames: state.getRecommendedGames,
-      selectedGames: state.selectedGames,
-      recommendedGames: state.recommendedGames,
-      isLoading: state.isLoading,
-    })
-  );
+  const {
+    getRecommendedGames,
+    recommendedGames,
+    isLoading,
+    selectedGames,
+    negativeGames,
+  } = useGameState((state) => ({
+    getRecommendedGames: state.getRecommendedGames,
+    selectedGames: state.selectedGames,
+    recommendedGames: state.recommendedGames,
+    isLoading: state.isLoading,
+    negativeGames: state.negativeGames,
+  }));
 
   useEffect(() => {
     if (selectedGames.length > 0) {
-      getRecommendedGames(selectedGames.map((game) => {
-        return game.tracking_id
-      }));
+      getRecommendedGames();
     }
-  }, [selectedGames]);
+  }, [selectedGames, negativeGames]);
 
   return (
-    <div className="flex flex-col">
-      {isLoading ? (
-        <div className="flex justify-center items-center mt-12 col-span-4">
-          <Loading />
-        </div>
-      ) : recommendedGames.length ? (
+    <div className="flex flex-col gap-4 bg-slate-900 rounded-lg p-3">
+      <div className="font-bold text-2xl">Recommended Games:</div>
+      {recommendedGames.length ? (
         recommendedGames.map((r) => (
-          <div className="max-w-sm">
-              <GameCard recommended key={r.tracking_id} game={r}></GameCard>
-          </div>
+          <GameCard recommended key={r.tracking_id} game={r}></GameCard>
         ))
       ) : (
-        <p>No games found</p>
+        <>
+          <p className="text-center pb-8">
+            Select some games to get recommendations for new games to play
+          </p>
+        </>
       )}
     </div>
   );
