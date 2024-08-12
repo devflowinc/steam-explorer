@@ -4,17 +4,12 @@ import { Home } from "./pages/Home.tsx";
 import "./index.css";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Recs } from "./pages/Recs.tsx";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
-  },
-  {
-    path: "/recs",
-    element: <Recs />,
   },
 ]);
 

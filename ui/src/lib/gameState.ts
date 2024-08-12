@@ -9,14 +9,14 @@ import {
 
 interface GameState {
   selectedGames: Chunk[];
-  addGame: (game: Chunk) => void;
+  negativeGames: Chunk[];
+  toggleAddGame: (game: Chunk) => void;
+  toggleAddNeg: (game: Chunk) => void;
   isLoading: boolean;
   shownGames: APIResponse[];
   getGamesForSearch: (term: string, filters: any) => void;
-  recommendedGames: {
-    [games: string]: Chunk[];
-  };
-  getRecommendedGames: (games: string) => void;
+  recommendedGames: Chunk[];
+  getRecommendedGames: () => void;
   clearSelectedGames: () => void;
   removeSelectedGame: (id: string) => void;
   suggestedQueries: string[];
@@ -24,16 +24,43 @@ interface GameState {
   setSelectedCategory: (cat: string) => void;
 }
 
-export const useGameState = create<GameState>()((set) => ({
+export const useGameState = create<GameState>()((set, get) => ({
   selectedCategory: "",
   setSelectedCategory: (cat) => set({ selectedCategory: cat }),
-  recommendedGames: {},
+  recommendedGames: [],
   selectedGames: [],
+  negativeGames: [],
   suggestedQueries: [],
-  addGame: (game) =>
-    set((state) => ({
-      selectedGames: [...state.selectedGames, game],
-    })),
+  toggleAddGame: (game) => {
+    if (
+      get()
+        .selectedGames.map((g) => g.id)
+        .includes(game.id)
+    ) {
+      set((state) => ({
+        selectedGames: state.selectedGames.filter((g) => g.id !== game.id),
+      }));
+    } else {
+      set((state) => ({
+        selectedGames: [...state.selectedGames, game],
+      }));
+    }
+  },
+  toggleAddNeg: (game) => {
+    if (
+      get()
+        .negativeGames.map((g) => g.id)
+        .includes(game.id)
+    ) {
+      set((state) => ({
+        negativeGames: state.negativeGames.filter((g) => g.id !== game.id),
+      }));
+    } else {
+      set((state) => ({
+        negativeGames: [...state.negativeGames, game],
+      }));
+    }
+  },
   isLoading: false,
   shownGames: [],
   getGamesForSearch: async (term: string, filters: any) => {
@@ -71,18 +98,13 @@ export const useGameState = create<GameState>()((set) => ({
         (game) => game.tracking_id !== id
       ),
     })),
-  getRecommendedGames: async (games: string) => {
-    set(() => ({ isLoading: true }));
-    const gamesAsArray = games?.split(",") as string[];
+  getRecommendedGames: async () => {
     const recommendations = await getRecommendations({
-      games: gamesAsArray,
+      games: get().selectedGames.map((g) => g.tracking_id),
+      negativeGames: get().negativeGames.map((g) => g.tracking_id),
     });
-    set((state) => ({
-      recommendedGames: {
-        ...state.recommendedGames,
-        [games]: recommendations,
-      },
-      isLoading: false,
+    set(() => ({
+      recommendedGames: recommendations,
     }));
   },
 }));

@@ -1,19 +1,99 @@
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Chunk } from "@/lib/types";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "./ui/carousel";
-import { AsyncImage } from "loadable-image";
 import { useGameState } from "@/lib/gameState";
 import { GameModal } from "./GameModal";
-import { GameScore } from "./Score";
-import { format } from "date-fns";
+import {
+  IconCross,
+  IconHeart,
+  IconHeartFilled,
+  IconStar,
+  IconThumbDown,
+  IconThumbDownFilled,
+  IconThumbUp,
+  IconX,
+  IconXboxXFilled,
+} from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Systems } from "./Systems";
+
+const GameScore = ({
+  game,
+  recommended,
+}: {
+  game: Chunk;
+  recommended?: boolean;
+}) => (
+  <div
+    className={cn({
+      "flex gap-4": !recommended,
+    })}
+  >
+    {game.metadata.metacritic_score ? (
+      <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
+          <IconStar
+            className={cn({
+              "w-3 h-3 fill-primary": true,
+              "fill-muted stroke-muted-foreground":
+                game.metadata.metacritic_score < 20,
+            })}
+          />
+          <IconStar
+            className={cn({
+              "w-3 h-3 fill-primary": true,
+              "fill-muted stroke-muted-foreground":
+                game.metadata.metacritic_score < 40,
+            })}
+          />
+          <IconStar
+            className={cn({
+              "w-3 h-3 fill-primary": true,
+              "fill-muted stroke-muted-foreground":
+                game.metadata.metacritic_score < 60,
+            })}
+          />
+          <IconStar
+            className={cn({
+              "w-3 h-3 fill-primary": true,
+              "fill-muted stroke-muted-foreground":
+                game.metadata.metacritic_score < 80,
+            })}
+          />
+          <IconStar
+            className={cn({
+              "w-3 h-3 fill-primary": true,
+              "fill-muted stroke-muted-foreground":
+                game.metadata.metacritic_score < 95,
+            })}
+          />
+          <span className="text-sm text-muted-foreground">
+            {game.metadata.metacritic_score}%
+          </span>
+        </div>
+      </div>
+    ) : null}
+    {game.metadata.positive || game.metadata.negative ? (
+      <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <IconThumbUp className="w-3 h-3 fill-primary" />
+            <span className="text-sm text-muted-foreground">
+              {game.metadata.positive}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <IconThumbDown className="w-3 h-3 fill-primary" />
+            <span className="text-sm text-muted-foreground">
+              {game.metadata.negative}
+            </span>
+          </div>
+        </div>
+      </div>
+    ) : null}
+  </div>
+);
 
 export function GameCard({
   game,
@@ -22,87 +102,86 @@ export function GameCard({
   game: Chunk;
   recommended?: boolean;
 }) {
-  const { addGame, selectedGames } = useGameState((state) => ({
-    addGame: state.addGame,
-    selectedGames: state.selectedGames,
-  }));
-  {
-    console.log(game);
-  }
+  const { toggleAddGame, toggleAddNeg, selectedGames, negativeGames } =
+    useGameState((state) => ({
+      toggleAddGame: state.toggleAddGame,
+      toggleAddNeg: state.toggleAddNeg,
+      selectedGames: state.selectedGames,
+      negativeGames: state.negativeGames,
+    }));
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Card className="w-full max-w-sm bg-card text-card-foreground shadow-lg cursor-pointer">
-          <div className="relative">
-            <Carousel>
-              <CarouselContent>
-                {game.metadata?.screenshots?.map((image, i) => (
-                  <CarouselItem key={i}>
-                    <AsyncImage
-                      src={image}
-                      className="w-full h-[300px] object-cover rounded-t-lg"
-                      alt="Game Cover Art"
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-            <div className="absolute top-4 left-4 bg-primary px-3 py-1 rounded-full text-primary-foreground text-sm font-medium">
-              {[
-                game.metadata?.windows && "Windows",
-                game.metadata?.linux && "Linux",
-                game.metadata?.mac && "Mac",
-                game.metadata?.platforms?.mac && "Mac",
-                game.metadata?.platforms?.windows && "Windows",
-                game.metadata?.platforms?.linux && "Linux",
-              ]
-                .filter((a) => a)
-                .join(", ")}
+        <div className="flex border-2 rounded-md max-h-28 hover:bg items-center gap-4 cursor-pointer relative">
+          <div className="absolute top-1 rounded-sm left-1 bg-black/90">
+            <div className="p-1">
+              <Systems metadata={game.metadata} />
             </div>
-            <GameScore game={game} />
           </div>
-          <CardContent className="p-6 space-y-4 flex flex-col justify-between">
-            <div>
-              <span className="text-2xl font-bold">{game.metadata?.name}</span>
-              <p className="text-muted-foreground text-sm line-clamp-3">
-                {game.metadata?.about_the_game ||
-                  game.metadata?.detailed_description}
-              </p>
-              <div className="flex items-center gap-2 mt-2 justify-between">
-                <span className="text-2xl font-bold">
-                  ${game.metadata?.price}
-                </span>
-                <span className="text-muted-foreground text-sm">
-                  {game.metadata?.genres?.join(", ")}
-                </span>
+          <img
+            src={game.metadata?.header_image}
+            className={cn({
+              "h-full rounded-l-md": !recommended,
+              "h-full max-w-48": recommended,
+            })}
+            alt="Game Cover Art"
+          />
+
+          <div className="flex px-2 py-0.5 items-stretch w-full flex-col gap-2">
+            <p className="text-lg font-bold line-clamp-2">
+              {game.metadata?.name}
+            </p>
+
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <GameScore game={game} recommended={recommended} />
+                {!recommended && (
+                  <div className="flex items-center gap-3">
+                    {Object.entries(game.metadata?.tags)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 3)
+                      .map((key) => (
+                        <Badge className="bg-amber-600">{key[0]}</Badge>
+                      ))}
+                  </div>
+                )}
               </div>
-              <div className="text-muted-foreground text-sm mt-2">
-                Release Date: {format(game.metadata.release_date, "dd/MM/yyyy")}
-              </div>
+              {!recommended && (
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleAddGame(game);
+                    }}
+                  >
+                    {!selectedGames.find(
+                      (g) => g.tracking_id == game.tracking_id
+                    ) ? (
+                      <IconHeart />
+                    ) : (
+                      <IconHeartFilled />
+                    )}
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleAddNeg(game);
+                    }}
+                  >
+                    {!negativeGames.find(
+                      (g) => g.tracking_id == game.tracking_id
+                    ) ? (
+                      <IconThumbDown />
+                    ) : (
+                      <IconThumbDownFilled />
+                    )}
+                  </Button>
+                </div>
+              )}{" "}
             </div>
-            {!recommended ? (
-              <div className="flex gap-4">
-                <Button
-                  className="w-full"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addGame(game);
-                  }}
-                  disabled={
-                    !!selectedGames.find(
-                      (g) => g.tracking_id === game.tracking_id
-                    ) || selectedGames.length > 9
-                  }
-                >
-                  Add Game
-                </Button>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </DialogTrigger>
       <GameModal game={game} recommended={recommended} />
     </Dialog>

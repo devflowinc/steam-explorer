@@ -1,25 +1,22 @@
 import { Chunk } from "./types";
 import { apiHeaders } from "./utils";
 
-export const getRecommendations = async ({ games }: { games: string[] }) => {
+export const getRecommendations = async ({
+  games,
+  negativeGames,
+}: {
+  games: string[];
+  negativeGames: string[];
+}) => {
   const options = {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
       limit: 20,
       positive_tracking_ids: games,
+      ...(negativeGames.length && { negative_tracking_ids: negativeGames }),
       recommend_type: "semantic",
       slim_chunks: true,
-      filters: {
-        must: [
-          {
-            field: "metadata.positive",
-            range: {
-              gt: 10,
-            },
-          },
-        ],
-      },
       strategy: "average_vector",
     }),
   };
@@ -67,7 +64,7 @@ export const getGames = async ({
     headers: apiHeaders,
     body: JSON.stringify({
       query: searchTerm,
-      limit: 29,
+      limit: 30,
       filters: {
         jsonb_prefilter: false,
         must: [
@@ -99,16 +96,20 @@ export const getFirstLoadGames = async () => {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
-      page_size: 29,
+      page_size: 30,
       filters: {
         must: [
           {
             field: "metadata.metacritic_score",
             range: {
-              gte: 90,
+              gte: 50,
             },
           },
         ],
+      },
+      sort_by: {
+        direction: "desc",
+        field: "metadata.metacritic_score",
       },
     }),
   };
