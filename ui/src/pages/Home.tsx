@@ -15,8 +15,8 @@ export function Home() {
   return (
     <Layout>
       <SearchAndFilters />
-      <div className="grid sm:grid-cols-3 gap-4">
-        <div className="col-span-2 flex flex-col gap-4 mt-8 mb-[12rem]">
+      <div className="grid sm:grid-cols-3 gap-4 mt-8">
+        <div className="col-span-2 flex flex-col gap-4 ">
           {isLoading ? (
             <div className="flex justify-center items-center mt-12 col-span-4">
               <Loading />
@@ -27,8 +27,7 @@ export function Home() {
             ))
           )}
         </div>
-        <div className="flex flex-col gap-4 mt-8 mb-[12rem]">
-          <div className="bold text-2xl">Recommended Games:</div>
+        <div className="flex flex-col gap-4">
           <Recs />
         </div>
       </div>

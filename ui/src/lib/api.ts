@@ -64,7 +64,7 @@ export const getGames = async ({
     headers: apiHeaders,
     body: JSON.stringify({
       query: searchTerm,
-      limit: 29,
+      limit: 30,
       filters: {
         jsonb_prefilter: false,
         must: [
@@ -96,7 +96,7 @@ export const getFirstLoadGames = async () => {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
-      page_size: 29,
+      page_size: 30,
       filters: {
         must: [
           {

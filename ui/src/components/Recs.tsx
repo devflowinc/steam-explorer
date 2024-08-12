@@ -24,17 +24,18 @@ export const Recs = () => {
   }, [selectedGames, negativeGames]);
 
   return (
-    <div className="flex flex-col gap-4">
-      {isLoading ? (
-        <div className="flex justify-center items-center mt-12 col-span-4">
-          <Loading />
-        </div>
-      ) : recommendedGames.length ? (
+    <div className="flex flex-col gap-4 bg-slate-900 rounded-lg p-3">
+      <div className="font-bold text-2xl">Recommended Games:</div>
+      {recommendedGames.length ? (
         recommendedGames.map((r) => (
           <GameCard recommended key={r.tracking_id} game={r}></GameCard>
         ))
       ) : (
-        <p>Press the heart on a game to add it to your liked games and </p>
+        <>
+          <p className="text-center pb-8">
+            Select some games to get recommendations for new games to play
+          </p>
+        </>
       )}
     </div>
   );
