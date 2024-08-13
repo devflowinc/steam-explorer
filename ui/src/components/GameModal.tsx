@@ -13,7 +13,7 @@ import { AsyncImage } from "loadable-image";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { useGameState } from "@/lib/gameState";
+import { GameActionButtons } from "./GameActionButtons";
 
 export const GameModal = ({
   game,
@@ -22,10 +22,6 @@ export const GameModal = ({
   game: Chunk;
   recommended?: boolean;
 }) => {
-  const { addGame, selectedGames } = useGameState((state) => ({
-    addGame: state.addGame,
-    selectedGames: state.selectedGames,
-  }));
   return (
     <DialogContent className="sm:max-w-[800px]">
       <div className="grid md:grid-cols-2 gap-6 items-start">
@@ -50,22 +46,8 @@ export const GameModal = ({
             <Button className="mt-4 w-full">See on Steam</Button>
           </a>
           {!recommended ? (
-            <div className="flex gap-4">
-              <Button
-                className="w-full mt-4"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addGame(game);
-                }}
-                disabled={
-                  !!selectedGames.find(
-                    (g) => g.tracking_id === game.tracking_id
-                  ) || selectedGames.length > 9
-                }
-              >
-                Add Game
-              </Button>
+            <div className="mt-4 grid grid-cols-2 space-x-2">
+              <GameActionButtons game={game} />
             </div>
           ) : null}
         </div>

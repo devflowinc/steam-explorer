@@ -1,22 +1,11 @@
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Chunk } from "@/lib/types";
-import { useGameState } from "@/lib/gameState";
 import { GameModal } from "./GameModal";
-import {
-  IconCross,
-  IconHeart,
-  IconHeartFilled,
-  IconStar,
-  IconThumbDown,
-  IconThumbDownFilled,
-  IconThumbUp,
-  IconX,
-  IconXboxXFilled,
-} from "@tabler/icons-react";
+import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
 import { Systems } from "./Systems";
+import { GameActionButtons } from "./GameActionButtons";
 
 const GameScore = ({
   game,
@@ -102,18 +91,10 @@ export function GameCard({
   game: Chunk;
   recommended?: boolean;
 }) {
-  const { toggleAddGame, toggleAddNeg, selectedGames, negativeGames } =
-    useGameState((state) => ({
-      toggleAddGame: state.toggleAddGame,
-      toggleAddNeg: state.toggleAddNeg,
-      selectedGames: state.selectedGames,
-      negativeGames: state.negativeGames,
-    }));
-
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="flex border-2 rounded-md max-h-28 hover:bg items-center gap-4 cursor-pointer relative">
+        <div className="sm:flex border-2 rounded-md sm:max-h-28 hover:bg items-center gap-4 cursor-pointer relative max-w-full pb-4 sm:pb-0">
           <div className="absolute top-1 rounded-sm left-1 bg-black/90">
             <div className="p-1">
               <Systems metadata={game.metadata} />
@@ -122,8 +103,8 @@ export function GameCard({
           <img
             src={game.metadata?.header_image}
             className={cn({
-              "h-full rounded-l-md": !recommended,
-              "h-full max-w-48": recommended,
+              "sm:h-full sm:rounded-l-md rounded-t-md": !recommended,
+              "sm:h-full sm:max-w-48": recommended,
             })}
             alt="Game Cover Art"
           />
@@ -133,7 +114,7 @@ export function GameCard({
               {game.metadata?.name}
             </p>
 
-            <div className="flex items-center justify-between">
+            <div className="sm:flex items-center justify-between">
               <div className="flex flex-col gap-2">
                 <GameScore game={game} recommended={recommended} />
                 {!recommended && (
@@ -148,35 +129,8 @@ export function GameCard({
                 )}
               </div>
               {!recommended && (
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleAddGame(game);
-                    }}
-                  >
-                    {!selectedGames.find(
-                      (g) => g.tracking_id == game.tracking_id
-                    ) ? (
-                      <IconHeart />
-                    ) : (
-                      <IconHeartFilled />
-                    )}
-                  </Button>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleAddNeg(game);
-                    }}
-                  >
-                    {!negativeGames.find(
-                      (g) => g.tracking_id == game.tracking_id
-                    ) ? (
-                      <IconThumbDown />
-                    ) : (
-                      <IconThumbDownFilled />
-                    )}
-                  </Button>
+                <div className="mt-4 sm:mt-0 flex space-x-2">
+                  <GameActionButtons game={game} />
                 </div>
               )}{" "}
             </div>
