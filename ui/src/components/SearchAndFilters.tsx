@@ -63,7 +63,7 @@ export const SearchAndFilters = () => {
           </ul>
         </div>
       ) : null}
-      <div className="mt-4 flex items-center justify-between gap-4">
+      <div className="mt-4 sm:flex items-center justify-between gap-4">
         <div className="flex grow gap-4">
           <Slider
             minStepsBetweenThumbs={1}
@@ -83,13 +83,13 @@ export const SearchAndFilters = () => {
             Metacritic Score ({minScore}-{maxScore})
           </label>
         </div>
-        <div className="flex items-center space-x-2 ">
+        <div className="sm:flex inline-block items-center space-x-2 mr-2 sm:mr-0 mt-2 sm:mt-0">
           <Combobox
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
           />
         </div>
-        <div className="flex items-center space-x-2 ">
+        <div className="sm:flex inline-block items-center space-x-2 ">
           <Checkbox
             id="free"
             checked={showFree}

@@ -1,12 +1,10 @@
 import { GameCard } from "@/components/GameCard";
-import { Loading } from "@/components/Loading";
 import { useGameState } from "@/lib/gameState";
 import { useEffect } from "react";
 export const Recs = () => {
   const {
     getRecommendedGames,
     recommendedGames,
-    isLoading,
     selectedGames,
     negativeGames,
   } = useGameState((state) => ({
@@ -24,8 +22,10 @@ export const Recs = () => {
   }, [selectedGames, negativeGames]);
 
   return (
-    <div className="flex flex-col gap-4 bg-slate-900 rounded-lg p-3">
-      <div className="font-bold text-2xl">Recommended Games:</div>
+    <div className="flex flex-col gap-4 sm:bg-slate-900 rounded-lg sm:p-3 max-h-[400px] overflow-auto sm:max-h-max order-1 sm:order-2">
+      <div className="font-bold text-2xl hidden sm:block">
+        Recommended Games:
+      </div>
       {recommendedGames.length ? (
         recommendedGames.map((r) => (
           <GameCard recommended key={r.tracking_id} game={r}></GameCard>
