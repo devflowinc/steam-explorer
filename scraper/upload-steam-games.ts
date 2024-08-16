@@ -128,6 +128,14 @@ async function processGameData() {
             ...(item["tags"] ? Object.keys(item["tags"]) : []),
             ...(item["adultGame"] ? ["adult_game"] : []),
           ],
+          semantic_boost: {
+            distance_factor: 0.5,
+            phrase: item["name"]
+          },
+          fulltext_boost: {
+            boost_factor: 2,
+            phrase: item["name"]
+          },
           metadata: item,
           time_stamp: item["release_date"]
             ? new Date(item["release_date"]).toISOString()

@@ -22,11 +22,15 @@ interface GameState {
   suggestedQueries: string[];
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
+  recFromFilters: boolean;
+  setRecFromFilters: (rec: boolean) => void;
+  topGeneres: string[];
 }
 
 export const useGameState = create<GameState>()((set, get) => ({
   selectedCategory: "",
   setSelectedCategory: (cat) => set({ selectedCategory: cat }),
+  setRecFromFilters: (rec) => set({ recFromFilters: rec }),
   recommendedGames: [],
   selectedGames: [],
   negativeGames: [],
@@ -98,10 +102,46 @@ export const useGameState = create<GameState>()((set, get) => ({
         (game) => game.tracking_id !== id
       ),
     })),
-  getRecommendedGames: async () => {
+  getRecommendedGames: async (useFilters: boolean) => {
+    const genereCounts = {}
+    
+    if (useFilters) {
+      // Process the add list
+      Object.values(get().selectedGames).map((game) => {
+          return game.metadata?.tags
+      }).forEach((obj) => {
+        for (let key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            genereCounts[key] = (genereCounts[key] || 0) + obj[key];
+          }
+        }
+      });
+
+      // Process the subtract list
+      Object.entries(get().negativeGames).map((game) => {
+          return game.metadata?.tags
+      }).forEach(obj => {
+        for (let key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            genereCounts[key] = (genereCounts[key] || 0) - 1;
+          }
+        }
+      });
+    }
+
+    const topGeneres = Object.entries(genereCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map((pair) => pair[0])
+    
+    set(() => ({
+      topGeneres: topGeneres,
+    }))
+
     const recommendations = await getRecommendations({
       games: get().selectedGames.map((g) => g.tracking_id),
       negativeGames: get().negativeGames.map((g) => g.tracking_id),
+      topGeneres: topGeneres
     });
     set(() => ({
       recommendedGames: recommendations,
