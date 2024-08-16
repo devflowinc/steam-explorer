@@ -9,7 +9,7 @@ import { Combobox } from "./Combobox";
 
 export const SearchAndFilters = () => {
   const [query, setQuery] = useState("");
-  const [showFree, setShowFree] = useState(true);
+
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
@@ -18,21 +18,24 @@ export const SearchAndFilters = () => {
     suggestedQueries,
     selectedCategory,
     setSelectedCategory,
+    recFromFilters,
+    setRecFromFilters
   } = useGameState((state) => ({
     getGamesForSearch: state.getGamesForSearch,
     suggestedQueries: state.suggestedQueries,
     selectedCategory: state.selectedCategory,
     setSelectedCategory: state.setSelectedCategory,
+    recFromFilters: state.recFromFilters,
+    setRecFromFilters: state.setRecFromFilters
   }));
 
   useEffect(() => {
     getGamesForSearch(debouncedSearchTerm, {
-      showFree,
       minScore,
       maxScore,
       selectedCategory,
     });
-  }, [debouncedSearchTerm, showFree, minScore, maxScore, selectedCategory]);
+  }, [debouncedSearchTerm, minScore, maxScore, selectedCategory]);
 
   return (
     <>
@@ -92,14 +95,14 @@ export const SearchAndFilters = () => {
         <div className="sm:flex inline-block items-center space-x-2 ">
           <Checkbox
             id="free"
-            checked={showFree}
-            onCheckedChange={(value) => setShowFree(value as boolean)}
+            checked={recFromFilters}
+            onCheckedChange={(value) => setRecFromFilters(value as boolean)}
           />
           <label
             htmlFor="free"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Show free games
+            Reccomend From Generes
           </label>
         </div>
       </div>

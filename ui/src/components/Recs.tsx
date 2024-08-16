@@ -7,7 +7,9 @@ export const Recs = () => {
     recommendedGames,
     selectedGames,
     negativeGames,
+    recFromFilters,
   } = useGameState((state) => ({
+    recFromFilters: state.recFromFilters,
     getRecommendedGames: state.getRecommendedGames,
     selectedGames: state.selectedGames,
     recommendedGames: state.recommendedGames,
@@ -16,10 +18,10 @@ export const Recs = () => {
   }));
 
   useEffect(() => {
-    if (selectedGames.length > 0) {
-      getRecommendedGames();
+    if (selectedGames.length > 0 || negativeGames.length > 0) {
+      getRecommendedGames(recFromFilters);
     }
-  }, [selectedGames, negativeGames]);
+  }, [selectedGames, negativeGames, recFromFilters]);
 
   return (
     <div className="flex flex-col gap-4 sm:bg-slate-900 rounded-lg sm:p-3 max-h-[400px] overflow-auto sm:max-h-max order-1 sm:order-2">

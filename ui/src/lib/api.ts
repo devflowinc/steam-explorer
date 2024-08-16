@@ -1,13 +1,43 @@
 import { Chunk } from "./types";
 import { apiHeaders } from "./utils";
 
+export const getChunkByTrackingID = async (id) => {
+  const options = {
+    method: "GET",
+    headers: apiHeaders,
+  };
+
+  const chunk = await fetch(
+    `https://api.trieve.ai/api/chunk/tracking_id/{id}`,
+    options
+  ).then((response) => response.json());
+
+  return chunk;
+
+}
+
 export const getRecommendations = async ({
   games,
   negativeGames,
+  topGeneres
 }: {
   games: string[];
   negativeGames: string[];
+  topGeneres: string[];
 }) => {
+
+  let filters = {};
+  if (topGeneres.length > 0) {
+    filters = {
+        must: [
+          {
+            field: "tag_set",
+            match_any: topGeneres
+          }
+        ]
+    };
+  }
+
   const options = {
     method: "POST",
     headers: apiHeaders,
@@ -16,6 +46,7 @@ export const getRecommendations = async ({
       positive_tracking_ids: games,
       ...(negativeGames.length && { negative_tracking_ids: negativeGames }),
       recommend_type: "semantic",
+      filters,
       slim_chunks: true,
       strategy: "average_vector",
     }),
@@ -43,15 +74,6 @@ export const getGames = async ({
   searchTerm: string;
   filters: Filters;
 }) => {
-  const removeFree = !filters.showFree
-    ? {
-        field: "metadata.price",
-        range: {
-          gt: 0,
-        },
-      }
-    : null;
-
   const categories = filters.selectedCategory
     ? {
         field: "tag_set",
@@ -75,7 +97,6 @@ export const getGames = async ({
               lte: filters.maxScore,
             },
           },
-          removeFree,
           categories,
         ].filter((a) => a),
       },

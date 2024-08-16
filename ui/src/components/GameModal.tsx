@@ -1,6 +1,11 @@
 import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { DialogContent, DialogTitle } from "./ui/dialog";
 import { format } from "date-fns";
+import { GameCard } from "./GameCard";
+import { 
+  useState,
+  useEffect
+} from "react";
 import {
   Carousel,
   CarouselContent,
@@ -8,6 +13,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./ui/carousel";
+import {
+  getRecommendations
+} from "@/lib/api"
 import { Chunk } from "@/lib/types";
 import { AsyncImage } from "loadable-image";
 import { ScrollArea } from "./ui/scroll-area";
