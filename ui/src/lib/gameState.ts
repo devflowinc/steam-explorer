@@ -84,10 +84,14 @@ export const useGameState = create<GameState>()((set, get) => ({
         isLoading: false,
       }));
     } else {
-      const games = await getFirstLoadGames();
+      const [games, suggestedQueries] = await Promise.all([
+        getFirstLoadGames(),
+        getSuggestedQueries({ term: "Openworld fighting game" }),
+      ]);
+
       set(() => ({
         shownGames: games,
-        suggestedQueries: [],
+        suggestedQueries: suggestedQueries,
         isLoading: false,
       }));
     }

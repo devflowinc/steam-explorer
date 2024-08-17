@@ -19,50 +19,6 @@ const GameScore = ({
       "flex gap-4": !recommended,
     })}
   >
-    {game.metadata.metacritic_score ? (
-      <div className="flex gap-2 items-center">
-        <div className="flex items-center gap-2">
-          <IconStar
-            className={cn({
-              "w-3 h-3 fill-primary": true,
-              "fill-muted stroke-muted-foreground":
-                game.metadata.metacritic_score < 20,
-            })}
-          />
-          <IconStar
-            className={cn({
-              "w-3 h-3 fill-primary": true,
-              "fill-muted stroke-muted-foreground":
-                game.metadata.metacritic_score < 40,
-            })}
-          />
-          <IconStar
-            className={cn({
-              "w-3 h-3 fill-primary": true,
-              "fill-muted stroke-muted-foreground":
-                game.metadata.metacritic_score < 60,
-            })}
-          />
-          <IconStar
-            className={cn({
-              "w-3 h-3 fill-primary": true,
-              "fill-muted stroke-muted-foreground":
-                game.metadata.metacritic_score < 80,
-            })}
-          />
-          <IconStar
-            className={cn({
-              "w-3 h-3 fill-primary": true,
-              "fill-muted stroke-muted-foreground":
-                game.metadata.metacritic_score < 95,
-            })}
-          />
-          <span className="text-sm text-muted-foreground">
-            {game.metadata.metacritic_score}%
-          </span>
-        </div>
-      </div>
-    ) : null}
     {game.metadata.positive || game.metadata.negative ? (
       <div className="flex gap-2 items-center">
         <div className="flex items-center gap-4">

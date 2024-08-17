@@ -50,6 +50,8 @@ interface GameData {
   score_rank: string;
   positive: number;
   negative: number;
+  positiveNegativeRatio: number;
+  totalPositiveNegative: number;
   estimated_owners: string;
   average_playtime_forever: number;
   average_playtime_2weeks: number;
@@ -116,6 +118,11 @@ async function processGameData() {
         console.log("it");
         const item = JSON.parse(unserializedItem[0]);
         console.log("it", jobToSearchableString(item));
+
+        if ("positive" in item) {
+          item["positiveNegativeRatio"] = Math.ceil( (item["positive"] / (item["positive"] + (item["negative"] || 0)))*100 )
+          item["totalPositiveNegative"] = item["positive"] + (item["negative"] || 0)
+        }
 
         return {
           chunk_html: jobToSearchableString(item),
