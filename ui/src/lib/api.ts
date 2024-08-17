@@ -19,24 +19,10 @@ export const getChunkByTrackingID = async (id) => {
 export const getRecommendations = async ({
   games,
   negativeGames,
-  topGeneres
 }: {
   games: string[];
   negativeGames: string[];
-  topGeneres: string[];
 }) => {
-
-  let filters = {};
-  if (topGeneres.length > 0) {
-    filters = {
-        must: [
-          {
-            field: "tag_set",
-            match_any: topGeneres
-          }
-        ]
-    };
-  }
 
   const options = {
     method: "POST",
@@ -46,9 +32,18 @@ export const getRecommendations = async ({
       positive_tracking_ids: games,
       ...(negativeGames.length && { negative_tracking_ids: negativeGames }),
       recommend_type: "semantic",
-      filters,
+      filters: {
+        must: [
+          {
+            field: "metadata.totalPositiveNegative",
+            range: {
+              gte: 50,
+            },
+          }
+        ]
+      },
       slim_chunks: true,
-      strategy: "average_vector",
+      strategy: "best_score",
     }),
   };
 
@@ -91,10 +86,9 @@ export const getGames = async ({
         jsonb_prefilter: false,
         must: [
           {
-            field: "metadata.metacritic_score",
+            field: "metadata.totalPositiveNegative",
             range: {
-              gte: filters.minScore,
-              lte: filters.maxScore,
+              gte: 50,
             },
           },
           categories,
@@ -121,16 +115,16 @@ export const getFirstLoadGames = async () => {
       filters: {
         must: [
           {
-            field: "metadata.metacritic_score",
+            field: "metadata.totalPositiveNegative",
             range: {
-              gte: 50,
+              gte: 5000,
             },
           },
         ],
       },
       sort_by: {
         direction: "desc",
-        field: "metadata.metacritic_score",
+        field: "metadata.positiveNegativeRatio",
       },
     }),
   };
