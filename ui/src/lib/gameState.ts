@@ -9,6 +9,8 @@ import {
 import { persist } from "zustand/middleware";
 
 interface GameState {
+  page: number;
+  availablePages: number;
   selectedGames: Chunk[];
   negativeGames: Chunk[];
   toggleAddGame: (game: Chunk) => void;
@@ -22,6 +24,7 @@ interface GameState {
   removeSelectedGame: (id: string) => void;
   suggestedQueries: string[];
   setRecFromFilters: (rec: boolean) => void;
+  setPage: (page: number) => void;
   topGenres: string[];
   recFromFilters: boolean;
 }
@@ -30,8 +33,10 @@ export const useGameState = create<GameState>()(
   persist(
     (set, get) => ({
       recFromFilters: false,
+      availablePages: 0,
       topGenres: [],
-
+      page: 1,
+      setPage: (page) => set({ page }),
       setRecFromFilters: (rec) => set({ recFromFilters: rec }),
       recommendedGames: [],
       selectedGames: [],
@@ -69,19 +74,20 @@ export const useGameState = create<GameState>()(
       },
       isLoading: false,
       shownGames: [],
-      getGamesForSearch: async (term: string, filters: any) => {
+      getGamesForSearch: async (term: string) => {
         set(() => ({ isLoading: true }));
         if (term) {
           const [games, suggestedQueries] = await Promise.all([
             getGames({
               searchTerm: term,
-              filters,
+              page: get().page,
             }),
             getSuggestedQueries({ term }),
           ]);
 
           set(() => ({
-            shownGames: games,
+            shownGames: games.chunks,
+            availablePages: games.pages,
             suggestedQueries,
             isLoading: false,
           }));

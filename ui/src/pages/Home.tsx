@@ -4,6 +4,7 @@ import { Chunk } from "../lib/types";
 import { useGameState } from "@/lib/gameState";
 import { Layout } from "@/components/Layout";
 import { SearchAndFilters } from "@/components/SearchAndFilters";
+
 import {
   Accordion,
   AccordionContent,
@@ -11,11 +12,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Recs } from "@/components/Recs";
+import { GamePagination } from "@/components/GamePagination";
 
 export function Home() {
-  const { shownGames, isLoading } = useGameState((state) => ({
+  const { shownGames, isLoading, availablePages } = useGameState((state) => ({
     shownGames: state.shownGames,
     isLoading: state.isLoading,
+    availablePages: state.availablePages,
   }));
 
   return (
@@ -32,6 +35,8 @@ export function Home() {
               <GameCard key={chunk.tracking_id} game={chunk} />
             ))
           )}
+
+          {availablePages && !isLoading ? <GamePagination /> : null}
         </div>
         <Recs />
       </div>
@@ -58,6 +63,7 @@ export function Home() {
                 <GameCard key={chunk.tracking_id} game={chunk} />
               ))
             )}
+            {availablePages && !isLoading ? <GamePagination /> : null}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

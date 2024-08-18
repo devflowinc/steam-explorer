@@ -17,8 +17,10 @@ export const SearchAndFilters = () => {
     suggestedQueries,
     recFromFilters,
     setRecFromFilters,
+    page,
   } = useGameState((state) => ({
     getGamesForSearch: state.getGamesForSearch,
+    page: state.page,
     suggestedQueries: state.suggestedQueries,
     recFromFilters: state.recFromFilters,
     setRecFromFilters: state.setRecFromFilters,
@@ -29,7 +31,7 @@ export const SearchAndFilters = () => {
       minScore,
       maxScore,
     });
-  }, [debouncedSearchTerm, minScore, maxScore, recFromFilters]);
+  }, [debouncedSearchTerm, minScore, maxScore, recFromFilters, page]);
 
   return (
     <>
@@ -41,7 +43,7 @@ export const SearchAndFilters = () => {
       />
 
       {suggestedQueries.length ? (
-        <div className="flex gap-4 items-center">
+        <div className=" gap-4 items-center hidden sm:flex">
           <span className="text-sm text-muted-foreground">
             Suggested queries:
           </span>

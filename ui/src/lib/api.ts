@@ -53,33 +53,21 @@ export const getRecommendations = async ({
   return recs;
 };
 
-type Filters = {
-  showFree: boolean;
-  minScore: number;
-  maxScore: number;
-  selectedCategory: string;
-};
-
 export const getGames = async ({
   searchTerm,
-  filters,
+  page = 1,
 }: {
   searchTerm: string;
-  filters: Filters;
+  page: number;
 }) => {
-  const categories = filters.selectedCategory
-    ? {
-        field: "tag_set",
-        match_any: [filters.selectedCategory],
-      }
-    : null;
-
   const options = {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
       query: searchTerm,
-      limit: 30,
+      page_size: 18,
+      page: page,
+      get_total_pages: true,
       filters: {
         jsonb_prefilter: false,
         must: [
@@ -89,8 +77,7 @@ export const getGames = async ({
               gte: 50,
             },
           },
-          categories,
-        ].filter((a) => a),
+        ],
       },
       search_type: "hybrid",
     }),
@@ -101,17 +88,20 @@ export const getGames = async ({
     options
   ).then((response) => response.json());
 
-  return (data.chunks as APIResponse[]).reduce(
-    (acc: APIResponse[], curr: APIResponse) => {
-      if (
-        !acc.find((game) => game.chunk.tracking_id === curr.chunk.tracking_id)
-      ) {
-        acc.push(curr);
-      }
-      return acc;
-    },
-    []
-  );
+  return {
+    chunks: (data.chunks as APIResponse[]).reduce(
+      (acc: APIResponse[], curr: APIResponse) => {
+        if (
+          !acc.find((game) => game.chunk.tracking_id === curr.chunk.tracking_id)
+        ) {
+          acc.push(curr);
+        }
+        return acc;
+      },
+      []
+    ),
+    pages: data.total_pages,
+  };
 };
 
 export const getFirstLoadGames = async () => {
@@ -119,7 +109,7 @@ export const getFirstLoadGames = async () => {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
-      page_size: 30,
+      page_size: 18,
       filters: {
         must: [
           {
