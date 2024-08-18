@@ -29,6 +29,13 @@ export const Recs = () => {
         Recommended Games:
       </div>
       {recommendedGames.length ? (
+        <p className="-mt-3 mb-4 text-muted-foreground text-sm">
+          Out of {selectedGames.length} liked game
+          {selectedGames.length !== 1 ? "s" : ""} and {negativeGames.length}{" "}
+          disliked game{negativeGames.length !== 1 ? "s" : ""}
+        </p>
+      ) : null}
+      {recommendedGames.length ? (
         recommendedGames.map((r) => (
           <GameCard recommended key={r.tracking_id} game={r}></GameCard>
         ))
