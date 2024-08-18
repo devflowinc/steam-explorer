@@ -1,20 +1,19 @@
 import { Chunk } from "./types";
 import { apiHeaders } from "./utils";
 
-export const getChunkByTrackingID = async (id) => {
+export const getChunkByTrackingID = async (id: string) => {
   const options = {
     method: "GET",
     headers: apiHeaders,
   };
 
   const chunk = await fetch(
-    `https://api.trieve.ai/api/chunk/tracking_id/{id}`,
+    `https://api.trieve.ai/api/chunk/tracking_id/${id}`,
     options
   ).then((response) => response.json());
 
   return chunk;
-
-}
+};
 
 export const getRecommendations = async ({
   games,
@@ -23,7 +22,6 @@ export const getRecommendations = async ({
   games: string[];
   negativeGames: string[];
 }) => {
-
   const options = {
     method: "POST",
     headers: apiHeaders,
@@ -39,8 +37,8 @@ export const getRecommendations = async ({
             range: {
               gte: 50,
             },
-          }
-        ]
+          },
+        ],
       },
       slim_chunks: true,
       strategy: "best_score",

@@ -5,7 +5,6 @@ import { useGameState } from "@/lib/gameState";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Checkbox } from "./ui/checkbox";
 import { Slider } from "./ui/slider";
-import { Combobox } from "./Combobox";
 
 export const SearchAndFilters = () => {
   const [query, setQuery] = useState("");
@@ -16,26 +15,21 @@ export const SearchAndFilters = () => {
   const {
     getGamesForSearch,
     suggestedQueries,
-    selectedCategory,
-    setSelectedCategory,
     recFromFilters,
-    setRecFromFilters
+    setRecFromFilters,
   } = useGameState((state) => ({
     getGamesForSearch: state.getGamesForSearch,
     suggestedQueries: state.suggestedQueries,
-    selectedCategory: state.selectedCategory,
-    setSelectedCategory: state.setSelectedCategory,
     recFromFilters: state.recFromFilters,
-    setRecFromFilters: state.setRecFromFilters
+    setRecFromFilters: state.setRecFromFilters,
   }));
 
   useEffect(() => {
     getGamesForSearch(debouncedSearchTerm, {
       minScore,
       maxScore,
-      selectedCategory,
     });
-  }, [debouncedSearchTerm, minScore, maxScore, selectedCategory]);
+  }, [debouncedSearchTerm, minScore, maxScore, recFromFilters]);
 
   return (
     <>
@@ -85,12 +79,6 @@ export const SearchAndFilters = () => {
           >
             Metacritic Score ({minScore}-{maxScore})
           </label>
-        </div>
-        <div className="sm:flex inline-block items-center space-x-2 mr-2 sm:mr-0 mt-2 sm:mt-0">
-          <Combobox
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-          />
         </div>
         <div className="sm:flex inline-block items-center space-x-2 ">
           <Checkbox
