@@ -1,7 +1,7 @@
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Chunk } from "@/lib/types";
 import { GameModal } from "./GameModal";
-import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
+import { IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Systems } from "./Systems";

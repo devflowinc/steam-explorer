@@ -1,4 +1,4 @@
-import { Chunk } from "./types";
+import { APIResponse, Chunk } from "./types";
 import { apiHeaders } from "./utils";
 
 export const getChunkByTrackingID = async (id: string) => {
@@ -101,7 +101,17 @@ export const getGames = async ({
     options
   ).then((response) => response.json());
 
-  return data.chunks;
+  return (data.chunks as APIResponse[]).reduce(
+    (acc: APIResponse[], curr: APIResponse) => {
+      if (
+        !acc.find((game) => game.chunk.tracking_id === curr.chunk.tracking_id)
+      ) {
+        acc.push(curr);
+      }
+      return acc;
+    },
+    []
+  );
 };
 
 export const getFirstLoadGames = async () => {
@@ -132,7 +142,14 @@ export const getFirstLoadGames = async () => {
     options
   ).then((response) => response.json());
 
-  return data.chunks.map((chunk: Chunk) => ({ chunk }));
+  return data.chunks
+    .reduce((acc: Chunk[], curr: Chunk) => {
+      if (!acc.find((game) => game.tracking_id === curr.tracking_id)) {
+        acc.push(curr);
+      }
+      return acc;
+    }, [])
+    .map((chunk: Chunk) => ({ chunk }));
 };
 
 export const getSuggestedQueries = async ({ term }: { term: string }) => {
