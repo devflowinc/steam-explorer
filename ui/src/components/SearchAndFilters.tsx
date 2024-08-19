@@ -88,7 +88,7 @@ export const SearchAndFilters = () => {
         </div>
       ) : null}
       <div className="mt-4 sm:flex items-center justify-between gap-4">
-        <div className="flex grow gap-4">
+        <div className="sm:flex grow gap-4">
           <Slider
             minStepsBetweenThumbs={1}
             className="max-w-sm"
@@ -107,7 +107,7 @@ export const SearchAndFilters = () => {
             Steam positive review ratio ({minSteamRatio}-{maxSteamRatio})
           </label>
         </div>
-        <div className="flex grow gap-4">
+        <div className="mt-4 sm:mt-0 sm:flex grow gap-4">
           <Slider
             className="max-w-sm"
             defaultValue={[minReviews]}
