@@ -44,6 +44,8 @@ interface GameState {
   suggestedQueries: string[];
   setPage: (page: number) => void;
   addUserSteamGames: (games: string[]) => Promise<void>;
+  minReviews: number;
+  setMinReviews: (value: number) => void;
 }
 
 export const useGameState = create<GameState>()(
@@ -51,6 +53,8 @@ export const useGameState = create<GameState>()(
     (set, get) => ({
       availablePages: 0,
       page: 1,
+      minReviews: 100,
+      setMinReviews: (value) => set({ minReviews: value }),
       minSteamRatio: 0,
       maxSteamRatio: 100,
       setMinSteamRatio: (value) => set({ minSteamRatio: value }),
@@ -116,12 +120,14 @@ export const useGameState = create<GameState>()(
       shownGames: [],
       getGamesForSearch: async (term: string) => {
         set(() => ({ isLoading: true }));
+        console.log("called", term);
         if (term) {
           const [games, suggestedQueries] = await Promise.all([
             getGames({
               searchTerm: term,
               page: get().page,
               filters: {
+                minReviews: get().minReviews,
                 maxScore: get().maxSteamRatio,
                 minScore: get().minSteamRatio,
               },
@@ -140,6 +146,7 @@ export const useGameState = create<GameState>()(
             getFirstLoadGames({
               maxScore: get().maxSteamRatio,
               minScore: get().minSteamRatio,
+              minReviews: get().minReviews,
             }),
             getSuggestedQueries({ term: "Openworld fighting game" }),
           ]);

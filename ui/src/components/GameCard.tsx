@@ -79,7 +79,9 @@ export function GameCard({
                       .sort((a, b) => b[1] - a[1])
                       .slice(0, 3)
                       .map((key) => (
-                        <Badge className="bg-amber-600">{key[0]}</Badge>
+                        <Badge key={key[0]} className="bg-amber-600">
+                          {key[0]}
+                        </Badge>
                       ))}
                   </div>
                 )}

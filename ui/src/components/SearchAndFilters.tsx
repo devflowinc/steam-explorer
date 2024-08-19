@@ -11,6 +11,7 @@ export const SearchAndFilters = () => {
 
   const debouncedSearchTerm = useDebounce(query, 300);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [loaded, hasLoaded] = useState(false);
   const {
     getGamesForSearch,
     suggestedQueries,
@@ -19,31 +20,43 @@ export const SearchAndFilters = () => {
     maxSteamRatio,
     setMaxSteamRatio,
     setMinSteamRatio,
-  } = useGameState((state) => ({
-    getGamesForSearch: state.getGamesForSearch,
-    page: state.page,
-    suggestedQueries: state.suggestedQueries,
-    minSteamRatio: state.minSteamRatio,
-    maxSteamRatio: state.maxSteamRatio,
-    setMinSteamRatio: state.setMinSteamRatio,
-    setMaxSteamRatio: state.setMaxSteamRatio,
-  }));
+    setMinReviews,
+    minReviews,
+  } = useGameState((state) => state);
 
   useEffect(() => {
     const search = searchParams.get("search");
     if (search) {
       setQuery(search);
+      hasLoaded(true);
+    } else {
+      hasLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    getGamesForSearch(debouncedSearchTerm);
-    setSearchParams({
-      search: query,
-      minScore: minSteamRatio.toString(),
-      maxScore: maxSteamRatio.toString(),
-    });
-  }, [debouncedSearchTerm, minSteamRatio, maxSteamRatio, page]);
+    if (loaded) {
+      getGamesForSearch(debouncedSearchTerm);
+      setSearchParams({
+        search: query,
+        minScore: minSteamRatio.toString(),
+        maxScore: maxSteamRatio.toString(),
+      });
+    }
+  }, [
+    debouncedSearchTerm,
+    minSteamRatio,
+    maxSteamRatio,
+    page,
+    minReviews,
+    loaded,
+  ]);
+
+  useEffect(() => {
+    if (page) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [page]);
 
   return (
     <>
@@ -92,6 +105,21 @@ export const SearchAndFilters = () => {
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             Steam positive review ratio ({minSteamRatio}-{maxSteamRatio})
+          </label>
+        </div>
+        <div className="flex grow gap-4">
+          <Slider
+            className="max-w-sm"
+            defaultValue={[minReviews]}
+            max={10000}
+            step={100}
+            onValueCommit={([min]) => setMinReviews(min)}
+          />
+          <label
+            htmlFor="free"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Minimum reviews ({minReviews})
           </label>
         </div>
       </div>

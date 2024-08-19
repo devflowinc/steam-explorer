@@ -71,6 +71,7 @@ export const getGames = async ({
   filters: {
     minScore: number;
     maxScore: number;
+    minReviews: number;
   };
 }) => {
   const options = {
@@ -84,6 +85,12 @@ export const getGames = async ({
       filters: {
         jsonb_prefilter: false,
         must: [
+          {
+            field: "metadata.totalPositiveNegative",
+            range: {
+              gte: filters.minReviews,
+            },
+          },
           {
             field: "metadata.positiveNegativeRatio",
             range: {
@@ -120,6 +127,7 @@ export const getGames = async ({
 
 export const getFirstLoadGames = async (filters: {
   minScore: number;
+  minReviews: number;
   maxScore: number;
 }) => {
   const options = {
@@ -132,7 +140,7 @@ export const getFirstLoadGames = async (filters: {
           {
             field: "metadata.totalPositiveNegative",
             range: {
-              gte: 5000,
+              gte: filters.minReviews < 5000 ? 5000 : filters.minReviews,
             },
           },
           {

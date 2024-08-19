@@ -76,7 +76,7 @@ const GamesSelectedModal = ({
           <DialogHeader>{disliked ? "Disliked" : "Liked"} Games</DialogHeader>
           <div className="flex flex-col gap-4">
             {games.map((game) => (
-              <GameCard game={game} />
+              <GameCard game={game} key={game.tracking_id} />
             ))}
           </div>
         </DialogContent>
