@@ -24,18 +24,25 @@ type SteamGame = {
 export const ImportUserGames = () => {
   const addUserSteamGames = useGameState((state) => state.addUserSteamGames);
   const [open, setOpen] = useState(false);
-  const [isAddingSteamGames, setIsAddingSteamGames] = useState(false);
   const [userId, setUserId] = useState("");
+  const [isAddingSteamGames, setIsAddingSteamGames] = useState(false);
   const [loading, setIsLoading] = useState(false);
   const [userGames, setUserGames] = useState<SteamGame[]>([]);
   const [shownGames, setShownUserGames] = useState<SteamGame[]>([]);
+  const [error, setError] = useState(false);
 
   const getGames = async () => {
-    setIsLoading(true);
-    const data = await getUserGames({ userId });
-    setIsLoading(false);
-    setUserGames(data.games);
-    setShownUserGames(data.games);
+    try {
+      setIsLoading(true);
+      const data = await getUserGames({ userId });
+
+      setUserGames(data.games);
+      setShownUserGames(data.games);
+    } catch {
+      setError(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const changeShownGames = (showAll: boolean) => {
@@ -61,19 +68,40 @@ export const ImportUserGames = () => {
 
       <DialogContent>
         <DialogTitle>Import your steam games</DialogTitle>
-        <p>Text explaning user what to do</p>
-
-        <div className="flex gap-2 items-center">
+        <p>
+          To get your games, we need your Steam ID, this is different then your
+          username. To view your Steam ID:
+        </p>
+        <ul className="list-disc pl-4 space-y-2 mb-2">
+          <li>
+            In the Steam desktop application or website, select your Steam
+            username in the top right corner of the screen.
+          </li>
+          <li>Select 'Account details'</li>
+          <li>Your Steam ID can be found below your Steam username.</li>
+        </ul>
+        <form
+          className="flex gap-2 items-center"
+          onSubmit={(e) => {
+            e.preventDefault();
+            getGames();
+          }}
+        >
           <Input
+            type="number"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             placeholder="Your Steam user id"
           ></Input>
-          <Button disabled={!userId || loading} onClick={getGames}>
+          <Button disabled={!userId || loading} type="submit">
             Get my games
           </Button>
-        </div>
-
+        </form>
+        {error ? (
+          <p className="text-red-500 text-xs -mt-2">
+            There was an error fetching your games, is your steam id correct?
+          </p>
+        ) : null}
         {shownGames?.length ? (
           <>
             <div>
