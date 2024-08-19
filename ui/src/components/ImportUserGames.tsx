@@ -6,62 +6,26 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { useState } from "react";
-import { getUserGames } from "@/lib/api";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import { Checkbox } from "./ui/checkbox";
-import { useGameState } from "@/lib/gameState";
-
-type SteamGame = {
-  appid: number;
-  has_community_visible_stats: boolean;
-  img_icon_url: string;
-  name: string;
-  playtime_forever: number;
-};
+import { useSteamImportState } from "@/lib/steamGamesImport";
 
 export const ImportUserGames = () => {
-  const addUserSteamGames = useGameState((state) => state.addUserSteamGames);
-  const [open, setOpen] = useState(false);
-  const [userId, setUserId] = useState("");
-  const [isAddingSteamGames, setIsAddingSteamGames] = useState(false);
-  const [loading, setIsLoading] = useState(false);
-  const [userGames, setUserGames] = useState<SteamGame[]>([]);
-  const [shownGames, setShownUserGames] = useState<SteamGame[]>([]);
-  const [error, setError] = useState(false);
-
-  const getGames = async () => {
-    try {
-      setIsLoading(true);
-      const data = await getUserGames({ userId });
-
-      setUserGames(data.games);
-      setShownUserGames(data.games);
-    } catch {
-      setError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const state = useSteamImportState((state) => state);
 
   const changeShownGames = (showAll: boolean) => {
     if (!showAll) {
-      setShownUserGames(userGames);
+      state.setShownUserGames(state.userGames);
     } else {
-      setShownUserGames(
-        userGames?.filter((game) => game.playtime_forever !== 0)
+      state.setShownUserGames(
+        state.userGames?.filter((game) => game.playtime_forever !== 0)
       );
     }
   };
-  const addUserGames = async () => {
-    setIsAddingSteamGames(true);
-    await addUserSteamGames(shownGames.map((game) => game.appid.toString()));
-    setIsAddingSteamGames(false);
-    setOpen(false);
-  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={state.open} onOpenChange={state.setOpen}>
       <DialogTrigger>
         <Button>Import your games</Button>
       </DialogTrigger>
@@ -84,28 +48,31 @@ export const ImportUserGames = () => {
           className="flex gap-2 items-center"
           onSubmit={(e) => {
             e.preventDefault();
-            getGames();
+            state.getGames();
           }}
         >
           <Input
             type="number"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
+            value={state.userId}
+            onChange={(e) => state.setUserId(e.target.value)}
             placeholder="Your Steam user id"
           ></Input>
-          <Button disabled={!userId || loading} type="submit">
+          <Button
+            disabled={!state.userId || state.isGettingSteamGames}
+            type="submit"
+          >
             Get my games
           </Button>
         </form>
-        {error ? (
+        {state.error ? (
           <p className="text-red-500 text-xs -mt-2">
             There was an error fetching your games, is your steam id correct?
           </p>
         ) : null}
-        {shownGames?.length ? (
+        {state.shownGames?.length ? (
           <>
             <div>
-              <h3>You have {shownGames.length} games on steam</h3>
+              <h3>You have {state.shownGames.length} games on steam</h3>
               <div className="flex items-center space-x-2 my-2">
                 <Checkbox id="onlyPlayed" onCheckedChange={changeShownGames} />
                 <label
@@ -117,7 +84,7 @@ export const ImportUserGames = () => {
               </div>
               <div className="">
                 <ScrollArea className="h-[300px]">
-                  {shownGames?.map((game) => (
+                  {state.shownGames?.map((game) => (
                     <li
                       className="flex gap-1 mt-2 items-center"
                       key={game.appid}
@@ -136,8 +103,8 @@ export const ImportUserGames = () => {
             </div>
             <DialogFooter>
               <Button
-                onClick={addUserGames}
-                disabled={!shownGames || isAddingSteamGames}
+                onClick={state.addUserGames}
+                disabled={!state.shownGames || state.isAddingSteamGames}
                 className="w-full"
               >
                 Import

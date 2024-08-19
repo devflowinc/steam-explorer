@@ -1,14 +1,7 @@
 import { GameCard } from "@/components/GameCard";
 import { useGameState } from "@/lib/gameState";
 import { useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "./ui/button";
-import { Chunk } from "@/lib/types";
+import { GamesSelectedModal } from "./GamesSelectedModal";
 export const Recs = () => {
   const {
     getRecommendedGames,
@@ -54,33 +47,5 @@ export const Recs = () => {
         </>
       )}
     </div>
-  );
-};
-
-const GamesSelectedModal = ({
-  games,
-  disliked,
-}: {
-  disliked?: boolean;
-  games: Chunk[];
-}) => {
-  return (
-    <Button variant={"link"} className="p-0 pr-1 underline">
-      <Dialog>
-        <DialogTrigger>
-          {games.length} {disliked ? "disliked" : "liked"} game
-          {games.length !== 1 ? "s" : ""}
-        </DialogTrigger>
-
-        <DialogContent className="sm:max-w-[800px] !max-h-[80vh]">
-          <DialogHeader>{disliked ? "Disliked" : "Liked"} Games</DialogHeader>
-          <div className="flex flex-col gap-4">
-            {games.map((game) => (
-              <GameCard game={game} key={game.tracking_id} />
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </Button>
   );
 };
