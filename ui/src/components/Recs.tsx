@@ -1,15 +1,21 @@
 import { GameCard } from "@/components/GameCard";
 import { useGameState } from "@/lib/gameState";
 import { useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "./ui/button";
+import { Chunk } from "@/lib/types";
 export const Recs = () => {
   const {
     getRecommendedGames,
     recommendedGames,
     selectedGames,
     negativeGames,
-    recFromFilters,
   } = useGameState((state) => ({
-    recFromFilters: state.recFromFilters,
     getRecommendedGames: state.getRecommendedGames,
     selectedGames: state.selectedGames,
     recommendedGames: state.recommendedGames,
@@ -19,9 +25,9 @@ export const Recs = () => {
 
   useEffect(() => {
     if (selectedGames.length > 0 || negativeGames.length > 0) {
-      getRecommendedGames(recFromFilters);
+      getRecommendedGames();
     }
-  }, [selectedGames, negativeGames, recFromFilters]);
+  }, [selectedGames, negativeGames]);
 
   return (
     <div className="flex flex-col gap-4 sm:bg-slate-900 rounded-lg sm:p-3 max-h-[400px] overflow-auto sm:max-h-max order-1 sm:order-2">
@@ -29,11 +35,12 @@ export const Recs = () => {
         Recommended Games:
       </div>
       {recommendedGames.length ? (
-        <p className="-mt-3 mb-4 text-muted-foreground text-sm">
-          Out of {selectedGames.length} liked game
-          {selectedGames.length !== 1 ? "s" : ""} and {negativeGames.length}{" "}
-          disliked game{negativeGames.length !== 1 ? "s" : ""}
-        </p>
+        <>
+          <p className="-mt-3 mb-4 text-muted-foreground text-sm">
+            Out of <GamesSelectedModal games={selectedGames} /> and{" "}
+            <GamesSelectedModal games={negativeGames} disliked />
+          </p>
+        </>
       ) : null}
       {recommendedGames.length ? (
         recommendedGames.map((r) => (
@@ -47,5 +54,33 @@ export const Recs = () => {
         </>
       )}
     </div>
+  );
+};
+
+const GamesSelectedModal = ({
+  games,
+  disliked,
+}: {
+  disliked?: boolean;
+  games: Chunk[];
+}) => {
+  return (
+    <Button variant={"link"} className="p-0 pr-1 underline">
+      <Dialog>
+        <DialogTrigger>
+          {games.length} {disliked ? "disliked" : "liked"} game
+          {games.length !== 1 ? "s" : ""}
+        </DialogTrigger>
+
+        <DialogContent className="sm:max-w-[800px] !max-h-[80vh]">
+          <DialogHeader>{disliked ? "Disliked" : "Liked"} Games</DialogHeader>
+          <div className="flex flex-col gap-4">
+            {games.map((game) => (
+              <GameCard game={game} />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </Button>
   );
 };

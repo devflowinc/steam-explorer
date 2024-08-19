@@ -3,7 +3,6 @@ import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { useGameState } from "@/lib/gameState";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Checkbox } from "./ui/checkbox";
 import { Slider } from "./ui/slider";
 
 export const SearchAndFilters = () => {
@@ -43,7 +42,7 @@ export const SearchAndFilters = () => {
           </span>
           <ul className="flex items-center gap-2 my-4">
             {suggestedQueries.map((query) => (
-              <li>
+              <li key={query}>
                 <Badge
                   className="cursor-pointer"
                   onClick={() => setQuery(query)}

@@ -19,7 +19,7 @@ interface GameState {
   shownGames: APIResponse[];
   getGamesForSearch: (term: string, filters: any) => void;
   recommendedGames: Chunk[];
-  getRecommendedGames: (useFilters: boolean) => Promise<void>;
+  getRecommendedGames: () => Promise<void>;
   clearSelectedGames: () => void;
   removeSelectedGame: (id: string) => void;
   suggestedQueries: string[];
@@ -108,16 +108,14 @@ export const useGameState = create<GameState>()(
             (game) => game.tracking_id !== id
           ),
         })),
-      getRecommendedGames: async (useFilters: boolean) => {
-        if (useFilters) {
-          const recommendations = await getRecommendations({
-            games: get().selectedGames.map((g) => g.tracking_id),
-            negativeGames: get().negativeGames.map((g) => g.tracking_id),
-          });
-          set(() => ({
-            recommendedGames: recommendations,
-          }));
-        }
+      getRecommendedGames: async () => {
+        const recommendations = await getRecommendations({
+          games: get().selectedGames.map((g) => g.tracking_id),
+          negativeGames: get().negativeGames.map((g) => g.tracking_id),
+        });
+        set(() => ({
+          recommendedGames: recommendations,
+        }));
       },
     }),
     {
