@@ -12,26 +12,20 @@ export const SearchAndFilters = () => {
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
-  const {
-    getGamesForSearch,
-    suggestedQueries,
-    recFromFilters,
-    setRecFromFilters,
-    page,
-  } = useGameState((state) => ({
-    getGamesForSearch: state.getGamesForSearch,
-    page: state.page,
-    suggestedQueries: state.suggestedQueries,
-    recFromFilters: state.recFromFilters,
-    setRecFromFilters: state.setRecFromFilters,
-  }));
+  const { getGamesForSearch, suggestedQueries, page } = useGameState(
+    (state) => ({
+      getGamesForSearch: state.getGamesForSearch,
+      page: state.page,
+      suggestedQueries: state.suggestedQueries,
+    })
+  );
 
   useEffect(() => {
     getGamesForSearch(debouncedSearchTerm, {
       minScore,
       maxScore,
     });
-  }, [debouncedSearchTerm, minScore, maxScore, recFromFilters, page]);
+  }, [debouncedSearchTerm, minScore, maxScore, page]);
 
   return (
     <>
@@ -80,19 +74,6 @@ export const SearchAndFilters = () => {
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             Metacritic Score ({minScore}-{maxScore})
-          </label>
-        </div>
-        <div className="sm:flex inline-block items-center space-x-2 ">
-          <Checkbox
-            id="free"
-            checked={recFromFilters}
-            onCheckedChange={(value) => setRecFromFilters(value as boolean)}
-          />
-          <label
-            htmlFor="free"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Reccomend From Generes
           </label>
         </div>
       </div>

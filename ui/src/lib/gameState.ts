@@ -23,21 +23,15 @@ interface GameState {
   clearSelectedGames: () => void;
   removeSelectedGame: (id: string) => void;
   suggestedQueries: string[];
-  setRecFromFilters: (rec: boolean) => void;
   setPage: (page: number) => void;
-  topGenres: string[];
-  recFromFilters: boolean;
 }
 
 export const useGameState = create<GameState>()(
   persist(
     (set, get) => ({
-      recFromFilters: false,
       availablePages: 0,
-      topGenres: [],
       page: 1,
       setPage: (page) => set({ page }),
-      setRecFromFilters: (rec) => set({ recFromFilters: rec }),
       recommendedGames: [],
       selectedGames: [],
       negativeGames: [],
@@ -115,50 +109,15 @@ export const useGameState = create<GameState>()(
           ),
         })),
       getRecommendedGames: async (useFilters: boolean) => {
-        const genreCounts: { [key: string]: number } = {};
-
         if (useFilters) {
-          // Process the add list
-          Object.values(get().selectedGames)
-            .map((game) => {
-              return game.metadata?.tags;
-            })
-            .forEach((obj) => {
-              for (let key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                  genreCounts[key] = (genreCounts[key] || 0) + obj[key];
-                }
-              }
-            });
-
-          // Process the subtract list
-          Object.values(get().negativeGames)
-            .map((game) => game.metadata?.tags)
-            .forEach((obj) => {
-              for (let key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                  genreCounts[key] = (genreCounts[key] || 0) - 1;
-                }
-              }
-            });
+          const recommendations = await getRecommendations({
+            games: get().selectedGames.map((g) => g.tracking_id),
+            negativeGames: get().negativeGames.map((g) => g.tracking_id),
+          });
+          set(() => ({
+            recommendedGames: recommendations,
+          }));
         }
-
-        const topGenres = Object.entries(genreCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3)
-          .map((pair) => pair[0]);
-
-        set({
-          topGenres: topGenres,
-        });
-
-        const recommendations = await getRecommendations({
-          games: get().selectedGames.map((g) => g.tracking_id),
-          negativeGames: get().negativeGames.map((g) => g.tracking_id),
-        });
-        set(() => ({
-          recommendedGames: recommendations,
-        }));
       },
     }),
     {
