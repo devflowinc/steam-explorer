@@ -112,7 +112,7 @@ async function processGameData() {
       continue;
     }
 
-    const createChunkData = await Promise.all(
+    const createChunkData = (await Promise.all(
       Object.values(items).map(async (i) => {
         const unserializedItem = await redisClient.hmGet("dataset", i);
         console.log("it");
@@ -151,9 +151,17 @@ async function processGameData() {
           weight: item["metacritic_score"] || 1,
         };
       })
-    );
+    )).filter((uploadData) => {
+      if (uploadData.tag_set.includes("Hentai") || uploadData.tag_set.includes("Sexual Content") || uploadData.tag_set.includes("NSFW")) {
+        return false
+      } else {
+        return true
+      }
+    });
 
-    console.log(createChunkData);
+    if (createChunkData.length == 0) {
+      continue;
+    }
 
     try {
       await fetch("https://api.trieve.ai/api/chunk", {
