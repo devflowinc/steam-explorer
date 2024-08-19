@@ -9,17 +9,25 @@ import { useSearchParams } from "react-router-dom";
 export const SearchAndFilters = () => {
   const [query, setQuery] = useState("");
 
-  const [minScore, setMinScore] = useState(0);
-  const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { getGamesForSearch, suggestedQueries, page } = useGameState(
-    (state) => ({
-      getGamesForSearch: state.getGamesForSearch,
-      page: state.page,
-      suggestedQueries: state.suggestedQueries,
-    })
-  );
+  const {
+    getGamesForSearch,
+    suggestedQueries,
+    page,
+    minSteamRatio,
+    maxSteamRatio,
+    setMaxSteamRatio,
+    setMinSteamRatio,
+  } = useGameState((state) => ({
+    getGamesForSearch: state.getGamesForSearch,
+    page: state.page,
+    suggestedQueries: state.suggestedQueries,
+    minSteamRatio: state.minSteamRatio,
+    maxSteamRatio: state.maxSteamRatio,
+    setMinSteamRatio: state.setMinSteamRatio,
+    setMaxSteamRatio: state.setMaxSteamRatio,
+  }));
 
   useEffect(() => {
     const search = searchParams.get("search");
@@ -29,16 +37,13 @@ export const SearchAndFilters = () => {
   }, []);
 
   useEffect(() => {
-    getGamesForSearch(debouncedSearchTerm, {
-      minScore,
-      maxScore,
-    });
+    getGamesForSearch(debouncedSearchTerm);
     setSearchParams({
       search: query,
-      minScore: minScore.toString(),
-      maxScore: maxScore.toString(),
+      minScore: minSteamRatio.toString(),
+      maxScore: maxSteamRatio.toString(),
     });
-  }, [debouncedSearchTerm, minScore, maxScore, page]);
+  }, [debouncedSearchTerm, minSteamRatio, maxSteamRatio, page]);
 
   return (
     <>
@@ -74,19 +79,19 @@ export const SearchAndFilters = () => {
           <Slider
             minStepsBetweenThumbs={1}
             className="max-w-sm"
-            defaultValue={[minScore, maxScore]}
+            defaultValue={[minSteamRatio, maxSteamRatio]}
             max={100}
             step={1}
             onValueCommit={([min, max]) => {
-              setMinScore(min);
-              setMaxScore(max);
+              setMinSteamRatio(min);
+              setMaxSteamRatio(max);
             }}
           />
           <label
             htmlFor="free"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Metacritic Score ({minScore}-{maxScore})
+            Steam positive review ratio ({minSteamRatio}-{maxSteamRatio})
           </label>
         </div>
       </div>

@@ -64,9 +64,14 @@ export const getUserGames = async ({ userId }: { userId: string }) => {
 export const getGames = async ({
   searchTerm,
   page = 1,
+  filters,
 }: {
   searchTerm: string;
   page: number;
+  filters: {
+    minScore: number;
+    maxScore: number;
+  };
 }) => {
   const options = {
     method: "POST",
@@ -80,9 +85,10 @@ export const getGames = async ({
         jsonb_prefilter: false,
         must: [
           {
-            field: "metadata.totalPositiveNegative",
+            field: "metadata.positiveNegativeRatio",
             range: {
-              gte: 50,
+              gte: filters.minScore,
+              lte: filters.maxScore,
             },
           },
         ],
@@ -112,7 +118,10 @@ export const getGames = async ({
   };
 };
 
-export const getFirstLoadGames = async () => {
+export const getFirstLoadGames = async (filters: {
+  minScore: number;
+  maxScore: number;
+}) => {
   const options = {
     method: "POST",
     headers: apiHeaders,
@@ -124,6 +133,13 @@ export const getFirstLoadGames = async () => {
             field: "metadata.totalPositiveNegative",
             range: {
               gte: 5000,
+            },
+          },
+          {
+            field: "metadata.positiveNegativeRatio",
+            range: {
+              gte: filters.minScore,
+              lte: filters.maxScore,
             },
           },
         ],

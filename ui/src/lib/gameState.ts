@@ -28,11 +28,15 @@ interface GameState {
   availablePages: number;
   selectedGames: Chunk[];
   negativeGames: Chunk[];
+  minSteamRatio: number;
+  maxSteamRatio: number;
+  setMinSteamRatio: (value: number) => void;
+  setMaxSteamRatio: (value: number) => void;
   toggleAddGame: (game: Chunk) => void;
   toggleAddNeg: (game: Chunk) => void;
   isLoading: boolean;
   shownGames: APIResponse[];
-  getGamesForSearch: (term: string, filters: any) => void;
+  getGamesForSearch: (term: string) => void;
   recommendedGames: Chunk[];
   getRecommendedGames: () => Promise<void>;
   clearSelectedGames: () => void;
@@ -47,6 +51,10 @@ export const useGameState = create<GameState>()(
     (set, get) => ({
       availablePages: 0,
       page: 1,
+      minSteamRatio: 0,
+      maxSteamRatio: 100,
+      setMinSteamRatio: (value) => set({ minSteamRatio: value }),
+      setMaxSteamRatio: (value) => set({ maxSteamRatio: value }),
       setPage: (page) => set({ page }),
       recommendedGames: [],
       selectedGames: [],
@@ -113,6 +121,10 @@ export const useGameState = create<GameState>()(
             getGames({
               searchTerm: term,
               page: get().page,
+              filters: {
+                maxScore: get().maxSteamRatio,
+                minScore: get().minSteamRatio,
+              },
             }),
             getSuggestedQueries({ term }),
           ]);
@@ -125,7 +137,10 @@ export const useGameState = create<GameState>()(
           }));
         } else {
           const [games, suggestedQueries] = await Promise.all([
-            getFirstLoadGames(),
+            getFirstLoadGames({
+              maxScore: get().maxSteamRatio,
+              minScore: get().minSteamRatio,
+            }),
             getSuggestedQueries({ term: "Openworld fighting game" }),
           ]);
 
