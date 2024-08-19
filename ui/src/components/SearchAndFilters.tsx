@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { useGameState } from "@/lib/gameState";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Slider } from "./ui/slider";
+import { useSearchParams } from "react-router-dom";
 
 export const SearchAndFilters = () => {
   const [query, setQuery] = useState("");
@@ -11,6 +12,7 @@ export const SearchAndFilters = () => {
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
+  const [searchParams, setSearchParams] = useSearchParams();
   const { getGamesForSearch, suggestedQueries, page } = useGameState(
     (state) => ({
       getGamesForSearch: state.getGamesForSearch,
@@ -20,9 +22,21 @@ export const SearchAndFilters = () => {
   );
 
   useEffect(() => {
+    const search = searchParams.get("search");
+    if (search) {
+      setQuery(search);
+    }
+  }, []);
+
+  useEffect(() => {
     getGamesForSearch(debouncedSearchTerm, {
       minScore,
       maxScore,
+    });
+    setSearchParams({
+      search: query,
+      minScore: minScore.toString(),
+      maxScore: maxScore.toString(),
     });
   }, [debouncedSearchTerm, minScore, maxScore, page]);
 
