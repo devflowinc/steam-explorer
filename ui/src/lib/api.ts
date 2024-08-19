@@ -53,6 +53,14 @@ export const getRecommendations = async ({
   return recs;
 };
 
+export const getUserGames = async ({ userId }: { userId: string }) => {
+  const data = await fetch(
+    `http://localhost:5173/api/games?user=${userId}`
+  ).then((rsp) => rsp.json());
+
+  return data;
+};
+
 export const getGames = async ({
   searchTerm,
   page = 1,

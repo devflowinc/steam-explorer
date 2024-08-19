@@ -1,12 +1,27 @@
 import { create } from "zustand";
 import { APIResponse, Chunk } from "./types";
 import {
+  getChunkByTrackingID,
   getFirstLoadGames,
   getGames,
   getRecommendations,
   getSuggestedQueries,
 } from "./api";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
+
+import { get, set, del } from "idb-keyval";
+
+const storage: StateStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    return (await get(name)) || null;
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    await set(name, value);
+  },
+  removeItem: async (name: string): Promise<void> => {
+    await del(name);
+  },
+};
 
 interface GameState {
   page: number;
@@ -24,6 +39,7 @@ interface GameState {
   removeSelectedGame: (id: string) => void;
   suggestedQueries: string[];
   setPage: (page: number) => void;
+  addUserSteamGames: (games: string[]) => Promise<void>;
 }
 
 export const useGameState = create<GameState>()(
@@ -36,6 +52,28 @@ export const useGameState = create<GameState>()(
       selectedGames: [],
       negativeGames: [],
       suggestedQueries: [],
+      addUserSteamGames: async (games) => {
+        const gamesFromTrieve = await Promise.all(
+          games.map(async (gameID) => {
+            const data = await getChunkByTrackingID(gameID);
+            if (data.id) {
+              return data;
+            }
+            return null;
+          })
+        );
+        set((state) => ({
+          selectedGames: [
+            ...state.selectedGames,
+            ...gamesFromTrieve.filter((g) => g),
+          ].reduce((acc: Chunk[], curr: Chunk) => {
+            if (!acc.find((game) => game.tracking_id === curr.tracking_id)) {
+              acc.push(curr);
+            }
+            return acc;
+          }, []),
+        }));
+      },
       toggleAddGame: (game) => {
         if (
           get()
@@ -119,11 +157,12 @@ export const useGameState = create<GameState>()(
       },
     }),
     {
-      // @ts-expect-error
+      name: "steam-explorer-trieve",
       partialize: (state) => ({
         negativeGames: state.negativeGames,
         selectedGames: state.selectedGames,
       }),
+      storage: createJSONStorage(() => storage),
     }
   )
 );
