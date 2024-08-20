@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { useGameState } from "@/lib/gameState";
