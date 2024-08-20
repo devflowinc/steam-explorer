@@ -1,17 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { useGameState } from "@/lib/gameState";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Slider } from "./ui/slider";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "@/lib/useSearchParams";
 
 export const SearchAndFilters = () => {
   const [query, setQuery] = useState("");
 
   const debouncedSearchTerm = useDebounce(query, 300);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [loaded, hasLoaded] = useState(false);
   const {
     getGamesForSearch,
     suggestedQueries,
@@ -23,34 +21,21 @@ export const SearchAndFilters = () => {
     setMinReviews,
     minReviews,
   } = useGameState((state) => state);
+  const { loaded, setSearchParams } = useSearchParams({ setQuery });
 
   useEffect(() => {
-    const search = searchParams.get("search");
-    if (search) {
-      setQuery(search);
-      hasLoaded(true);
-    } else {
-      hasLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
+    console.log(loaded);
     if (loaded) {
       getGamesForSearch(debouncedSearchTerm);
       setSearchParams({
         search: query,
         minScore: minSteamRatio.toString(),
         maxScore: maxSteamRatio.toString(),
+        page: page.toString(),
+        minReviews: minReviews.toString(),
       });
     }
-  }, [
-    debouncedSearchTerm,
-    minSteamRatio,
-    maxSteamRatio,
-    page,
-    minReviews,
-    loaded,
-  ]);
+  }, [debouncedSearchTerm, minSteamRatio, maxSteamRatio, page, minReviews]);
 
   useEffect(() => {
     if (page) {
