@@ -120,7 +120,6 @@ export const useGameState = create<GameState>()(
       shownGames: [],
       getGamesForSearch: async (term: string) => {
         set(() => ({ isLoading: true }));
-        console.log("called", term);
         if (term) {
           const [games, suggestedQueries] = await Promise.all([
             getGames({
@@ -161,6 +160,8 @@ export const useGameState = create<GameState>()(
       clearSelectedGames: () =>
         set(() => ({
           selectedGames: [],
+          negativeGames: [],
+          recommendedGames: []
         })),
       removeSelectedGame: (id: string) =>
         set((state) => ({

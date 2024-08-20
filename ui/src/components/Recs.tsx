@@ -1,4 +1,5 @@
 import { GameCard } from "@/components/GameCard";
+import { Button } from "./ui/button";
 import { useGameState } from "@/lib/gameState";
 import { useEffect } from "react";
 import { GamesSelectedModal } from "./GamesSelectedModal";
@@ -8,12 +9,14 @@ export const Recs = () => {
     recommendedGames,
     selectedGames,
     negativeGames,
+    clearSelectedGames
   } = useGameState((state) => ({
     getRecommendedGames: state.getRecommendedGames,
     selectedGames: state.selectedGames,
     recommendedGames: state.recommendedGames,
     isLoading: state.isLoading,
     negativeGames: state.negativeGames,
+    clearSelectedGames: state.clearSelectedGames
   }));
 
   useEffect(() => {
@@ -28,12 +31,17 @@ export const Recs = () => {
         Recommended Games:
       </div>
       {recommendedGames.length ? (
-        <>
-          <p className="-mt-3 mb-4 text-muted-foreground text-sm">
+        <div className="flex flex-col -mt-3 space-y-2 text-muted-foreground text-sm">
+          <p>
             Out of <GamesSelectedModal games={selectedGames} /> and{" "}
             <GamesSelectedModal games={negativeGames} disliked />
           </p>
-        </>
+          <Button onClick={() => {
+            clearSelectedGames()
+          }}>
+            Clear Recomendations
+          </Button>
+        </div>
       ) : null}
       {recommendedGames.length ? (
         recommendedGames.map((r) => (
