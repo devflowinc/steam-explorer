@@ -14,6 +14,7 @@ export const SearchAndFilters = () => {
     getGamesForSearch,
     suggestedQueries,
     page,
+    setPage,
     minSteamRatio,
     maxSteamRatio,
     setMaxSteamRatio,
@@ -42,6 +43,12 @@ export const SearchAndFilters = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [page]);
+
+  useEffect(() => {
+    if (query) {
+      setPage(1)
+    }
+  }, [query]);
 
   return (
     <>
