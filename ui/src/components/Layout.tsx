@@ -5,7 +5,7 @@ import { ImportUserGames } from "./ImportUserGames";
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
-      <div className="p-8 flex justify-end">
+      <div className="p-8 pb-4 flex justify-end">
         <ImportUserGames />
       </div>
       <header className="my-12 mt-4 flex justify-center">

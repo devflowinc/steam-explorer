@@ -23,7 +23,7 @@ export const GamesSelectedModal = ({
           {games.length !== 1 ? "s" : ""}
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[800px] !max-h-[80vh]">
+        <DialogContent className="md:max-w-[800px] !max-h-[80vh]">
           <DialogHeader>{disliked ? "Disliked" : "Liked"} Games</DialogHeader>
           <div className="flex flex-col gap-4">
             {games.map((game) => (

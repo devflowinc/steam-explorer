@@ -23,8 +23,8 @@ export const Recs = () => {
   }, [selectedGames, negativeGames]);
 
   return (
-    <div className="flex flex-col gap-4 sm:bg-slate-900 rounded-lg sm:p-3 max-h-[400px] overflow-auto sm:max-h-max order-1 sm:order-2">
-      <div className="font-bold text-2xl hidden sm:block">
+    <div className="flex flex-col gap-4 md:bg-slate-900 rounded-lg md:p-3 max-h-[400px] overflow-auto md:max-h-max order-1 md:order-2">
+      <div className="font-bold text-2xl hidden md:block">
         Recommended Games:
       </div>
       {recommendedGames.length ? (

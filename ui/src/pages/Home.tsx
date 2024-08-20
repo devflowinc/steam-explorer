@@ -24,8 +24,8 @@ export function Home() {
   return (
     <Layout>
       <SearchAndFilters />
-      <div className="sm:grid-cols-3 gap-4 mt-8 grid-cols-1 hidden sm:grid">
-        <div className="sm:col-span-2 flex flex-col gap-4 order-2 sm:order-1">
+      <div className="md:grid-cols-3 gap-4 mt-8 grid-cols-1 hidden md:grid">
+        <div className="md:col-span-2 flex flex-col gap-4 order-2 md:order-1">
           {isLoading ? (
             <div className="flex justify-center items-center mt-12 col-span-4">
               <Loading />
@@ -42,7 +42,7 @@ export function Home() {
       </div>
       <Accordion
         type="multiple"
-        className="w-full block sm:hidden"
+        className="w-full block md:hidden"
         defaultValue={["search"]}
       >
         <AccordionItem value="recommended">
