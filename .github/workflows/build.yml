@@ -11,9 +11,9 @@ jobs:
         with:
           node-version: 20
           cache: "yarn"
-      - name: move to ui
-        run: cd ui
       - name: Install dependencies
         run: yarn
+        working-directory: ./ui
       - name: Build
         run: yarn build
+        working-directory: ./ui
