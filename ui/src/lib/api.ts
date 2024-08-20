@@ -45,10 +45,24 @@ export const getRecommendations = async ({
     }),
   };
 
-  const recs = await fetch(
+  const recs = (await fetch(
     "https://api.trieve.ai/api/chunk/recommend",
     options
-  ).then((response) => response.json());
+  ).then((response) => response.json()))
+  .reduce(
+    (acc: APIResponse[], curr: APIResponse) => {
+      console.log(acc, curr);
+      if (
+        !acc.find(
+          (game) => game.metadata.name === curr.metadata.name
+        )
+      ) {
+        acc.push(curr);
+      }
+      return acc;
+    },
+    []
+  );
 
   return recs;
 };
