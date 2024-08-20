@@ -1,5 +1,10 @@
 const BASE_PATH = "./dist";
-
+const cors = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS, POST, PUT",
+  },
+};
 Bun.serve({
   port: 5173,
   async fetch(req) {
@@ -8,34 +13,42 @@ Bun.serve({
     if (pathname.startsWith("/api/games")) {
       const steamId = new URL(req.url).searchParams.get("user");
 
-      const data = await fetch(
-        `https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=17DF2A0DA467DC161B5ECDDBCBF976FF&steamid=${steamId}&format=json&include_appinfo=true`
-      ).then((rsp) => rsp.json());
-      if (!data.response?.games) {
-        const res = Response.json(
-          { error: "Private account" },
-          { status: 500 }
-        );
-        res.headers.set("Access-Control-Allow-Origin", "*");
-        res.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-        return res;
-      }
-      const games = data.response.games.map((game) => ({
-        ...game,
-        img_icon_url: `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`,
-      }));
-      const res = Response.json({
-        ...data.response,
-        games,
-      });
+      try {
+        const data = await fetch(
+          `https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=17DF2A0DA467DC161B5ECDDBCBF976FF&steamid=${steamId}&format=json&include_appinfo=true`
+        ).then((rsp) => rsp.json());
+        if (!data.response?.games) {
+          return Response.json(
+            { error: "Private account" },
+            {
+              status: 500,
+              ...cors,
+            }
+          );
+        }
+        const games = data.response.games.map((game) => ({
+          ...game,
+          img_icon_url: `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`,
+        }));
 
-      res.headers.set("Access-Control-Allow-Origin", "*");
-      res.headers.set(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
-      );
-      return res;
+        return Response.json(
+          {
+            ...data.response,
+            games,
+          },
+          cors
+        );
+      } catch (e) {
+        return Response.json(
+          { error: e },
+          {
+            status: 500,
+            ...cors,
+          }
+        );
+      }
     }
+
     const filePath =
       new URL(req.url).pathname !== "/"
         ? BASE_PATH + new URL(req.url).pathname

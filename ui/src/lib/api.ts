@@ -55,7 +55,8 @@ export const getRecommendations = async ({
 
 export const getUserGames = async ({ userId }: { userId: string }) => {
   const data = await fetch(
-    `http://localhost:5173/api/games?user=${userId}`
+    (import.meta.env.DEV ? "http://localhost:5173" : "") +
+      `/api/games?user=${userId}`
   ).then((rsp) => rsp.json());
 
   return data;
@@ -113,7 +114,9 @@ export const getGames = async ({
     chunks: (data.chunks as APIResponse[]).reduce(
       (acc: APIResponse[], curr: APIResponse) => {
         if (
-          !acc.find((game) => game.chunk.metadata.name === curr.chunk.metadata.name)
+          !acc.find(
+            (game) => game.chunk.metadata.name === curr.chunk.metadata.name
+          )
         ) {
           acc.push(curr);
         }
