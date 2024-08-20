@@ -11,7 +11,15 @@ Bun.serve({
       const data = await fetch(
         `https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=17DF2A0DA467DC161B5ECDDBCBF976FF&steamid=${steamId}&format=json&include_appinfo=true`
       ).then((rsp) => rsp.json());
-
+      if (!data.response?.games) {
+        const res = Response.json(
+          { error: "Private account" },
+          { status: 500 }
+        );
+        res.headers.set("Access-Control-Allow-Origin", "*");
+        res.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+        return res;
+      }
       const games = data.response.games.map((game) => ({
         ...game,
         img_icon_url: `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`,

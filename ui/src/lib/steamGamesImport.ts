@@ -23,7 +23,7 @@ interface GameState {
   setUserGames: (games: SteamGame[]) => void;
   shownGames: SteamGame[];
   setShownUserGames: (games: SteamGame[]) => void;
-  error: boolean;
+  error: boolean | string;
   setError: (value: boolean) => void;
   getGames: () => Promise<void>;
   addUserGames: () => Promise<void>;
@@ -58,7 +58,7 @@ export const useSteamImportState = create<GameState>()((set, get) => ({
     try {
       get().setIsGettingSteamGames(true);
       const data = await getUserGames({ userId: get().userId });
-
+      if (data.error) set({ error: data.error });
       set({
         userGames: data.games,
         shownGames: data.games,

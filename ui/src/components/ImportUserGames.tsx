@@ -66,7 +66,22 @@ export const ImportUserGames = () => {
         </form>
         {state.error ? (
           <p className="text-red-500 text-xs -mt-2">
-            There was an error fetching your games, is your steam id correct?
+            {state.error === "Private account" ? (
+              <span>
+                Your profile is set to private. Please follow the instructions
+                on the{" "}
+                <a
+                  className="underline"
+                  href="https://help.steampowered.com/en/faqs/view/588C-C67D-0251-C276"
+                  target="_blank"
+                >
+                  steam website
+                </a>{" "}
+                and change the "Game details" option to public
+              </span>
+            ) : (
+              "There was an error fetching your games, is your steam id correct?"
+            )}
           </p>
         ) : null}
         {state.shownGames?.length ? (
