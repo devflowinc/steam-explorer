@@ -113,7 +113,7 @@ export const getGames = async ({
     chunks: (data.chunks as APIResponse[]).reduce(
       (acc: APIResponse[], curr: APIResponse) => {
         if (
-          !acc.find((game) => game.chunk.tracking_id === curr.chunk.tracking_id)
+          !acc.find((game) => game.chunk.metadata.name === curr.chunk.metadata.name)
         ) {
           acc.push(curr);
         }
@@ -140,7 +140,7 @@ export const getFirstLoadGames = async (filters: {
           {
             field: "metadata.totalPositiveNegative",
             range: {
-              gte: filters.minReviews < 5000 ? 5000 : filters.minReviews,
+              gte: filters.minReviews,
             },
           },
           {
@@ -166,7 +166,7 @@ export const getFirstLoadGames = async (filters: {
 
   return data.chunks
     .reduce((acc: Chunk[], curr: Chunk) => {
-      if (!acc.find((game) => game.tracking_id === curr.tracking_id)) {
+      if (!acc.find((game) => game.metadata.name === curr.metadata.name)) {
         acc.push(curr);
       }
       return acc;

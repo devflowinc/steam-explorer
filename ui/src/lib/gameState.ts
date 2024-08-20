@@ -53,7 +53,7 @@ export const useGameState = create<GameState>()(
     (set, get) => ({
       availablePages: 0,
       page: 1,
-      minReviews: 100,
+      minReviews: 5000,
       setMinReviews: (value) => set({ minReviews: value }),
       minSteamRatio: 0,
       maxSteamRatio: 100,

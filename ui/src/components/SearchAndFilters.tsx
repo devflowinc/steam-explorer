@@ -94,7 +94,7 @@ export const SearchAndFilters = () => {
             className="max-w-sm"
             defaultValue={[minSteamRatio, maxSteamRatio]}
             max={100}
-            step={1}
+            step={5}
             onValueCommit={([min, max]) => {
               setMinSteamRatio(min);
               setMaxSteamRatio(max);
@@ -112,7 +112,7 @@ export const SearchAndFilters = () => {
             className="max-w-sm"
             defaultValue={[minReviews]}
             max={10000}
-            step={100}
+            step={500}
             onValueCommit={([min]) => setMinReviews(min)}
           />
           <label
