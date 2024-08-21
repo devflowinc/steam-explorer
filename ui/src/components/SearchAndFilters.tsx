@@ -22,11 +22,14 @@ export const SearchAndFilters = () => {
     setMinReviews,
     minReviews,
   } = useGameState((state) => state);
-  const { loaded, setSearchParams } = useSearchParams({ setQuery });
+  const { setSearchParams, loaded } = useSearchParams({
+    setQuery,
+    runFirstSearch: getGamesForSearch,
+  });
 
   useEffect(() => {
     if (loaded) {
-      getGamesForSearch(debouncedSearchTerm);
+      getGamesForSearch(query);
       setSearchParams({
         search: query,
         minScore: minSteamRatio.toString(),

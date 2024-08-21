@@ -1,16 +1,18 @@
 import { useSearchParams as useSearchParamsReactRouter } from "react-router-dom";
 import { useGameState } from "./gameState";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 export const useSearchParams = ({
   setQuery,
+  runFirstSearch,
 }: {
   setQuery: Dispatch<SetStateAction<string>>;
+  runFirstSearch: any;
 }) => {
   const [searchParams, setSearchParams] = useSearchParamsReactRouter();
-  const [loaded, setLoaded] = useState(false);
   const { setMaxSteamRatio, setMinSteamRatio, setMinReviews, setPage } =
     useGameState((state) => state);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const search = searchParams.get("search");
@@ -23,8 +25,9 @@ export const useSearchParams = ({
     page && setPage(parseInt(page));
     search && setQuery(search);
     minReviews && setMinReviews(parseInt(minReviews));
+    runFirstSearch(search);
     setLoaded(true);
   }, []);
 
-  return { loaded, setSearchParams };
+  return { setSearchParams, loaded };
 };

@@ -15,7 +15,7 @@ Bun.serve({
 
       try {
         const data = await fetch(
-          `https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=17DF2A0DA467DC161B5ECDDBCBF976FF&steamid=${steamId}&format=json&include_appinfo=true`
+          `https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=${Bun.env.STEAM_API_KEY}&steamid=${steamId}&format=json&include_appinfo=true`
         ).then((rsp) => rsp.json());
         if (!data.response?.games) {
           return Response.json(
