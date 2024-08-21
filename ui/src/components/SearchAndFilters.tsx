@@ -25,7 +25,6 @@ export const SearchAndFilters = () => {
   const { loaded, setSearchParams } = useSearchParams({ setQuery });
 
   useEffect(() => {
-    console.log(loaded);
     if (loaded) {
       getGamesForSearch(debouncedSearchTerm);
       setSearchParams({
@@ -46,7 +45,7 @@ export const SearchAndFilters = () => {
 
   useEffect(() => {
     if (query) {
-      setPage(1)
+      setPage(1);
     }
   }, [query]);
 
