@@ -1,6 +1,6 @@
 import { useSearchParams as useSearchParamsReactRouter } from "react-router-dom";
 import { useGameState } from "./gameState";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 export const useSearchParams = ({
   setQuery,
