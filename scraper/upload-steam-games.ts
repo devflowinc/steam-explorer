@@ -68,7 +68,7 @@ const redisClient = await createClient({
 }).connect();
 
 // Function to transform GameData to a searchable string
-function jobToSearchableString(job: GameData): string {
+function gameToSearchableString(game: GameData): string {
   let searchableString = "";
 
   // Safely adds a field to the searchable string if it exists
@@ -82,23 +82,23 @@ function jobToSearchableString(job: GameData): string {
     }
   };
   // Process each field with a safe check and appropriate formatting
-  addField(job["about_the_game"], "Game Description: ");
-  addField(job["name"], "Game Name: ");
+  addField(game["about_the_game"], "Game Description: ");
+  addField(game["name"], "Game Name: ");
 
-  if (job["categories"]) {
-    addField(job["categories"].join(","), "Game Categories: ");
+  if (game["categories"]) {
+    addField(game["categories"].join(","), "Game Categories: ");
   }
 
-  if (job["developers"]) {
-    addField(job["developers"].join(","), "Game Developers: ");
+  if (game["developers"]) {
+    addField(game["developers"].join(","), "Game Developers: ");
   }
 
-  if (job["publishers"]) {
-    addField(job["publishers"].join(","), "Game Publishers: ");
+  if (game["publishers"]) {
+    addField(game["publishers"].join(","), "Game Publishers: ");
   }
 
-  if (job["tags"]) {
-    addField(Object.keys(job["tags"]).join(","), "Game Tags: ");
+  if (game["tags"]) {
+    addField(Object.keys(game["tags"]).join(","), "Game Tags: ");
   }
 
   return searchableString.trim();
@@ -112,48 +112,67 @@ async function processGameData() {
       continue;
     }
 
-    const createChunkData = await Promise.all(
-      Object.values(items).map(async (i) => {
-        const unserializedItem = await redisClient.hmGet("dataset", i);
-        console.log("it");
-        const item = JSON.parse(unserializedItem[0]);
-        console.log("it", jobToSearchableString(item));
+    const createChunkData = (
+      await Promise.all(
+        Object.values(items).map(async (i) => {
+          const unserializedItem = await redisClient.hmGet("dataset", i);
+          console.log("it");
+          const item = JSON.parse(unserializedItem[0]);
+          console.log("it", gameToSearchableString(item));
 
-        if ("positive" in item) {
-          item["positiveNegativeRatio"] = Math.ceil( (item["positive"] / (item["positive"] + (item["negative"] || 0)))*100 )
-          item["totalPositiveNegative"] = item["positive"] + (item["negative"] || 0)
-        }
+          if ("positive" in item) {
+            item["positiveNegativeRatio"] = Math.ceil(
+              (item["positive"] /
+                (item["positive"] + (item["negative"] || 0))) *
+                100
+            );
+            item["totalPositiveNegative"] =
+              item["positive"] + (item["negative"] || 0);
+          }
 
-        return {
-          chunk_html: jobToSearchableString(item),
-          link: `https://store.steampowered.com/app/${i}` ?? "",
-          image_urls: item["screenshots"] || null,
-          tracking_id: i ?? "",
-          tag_set: [
-            ...(item["genres"] ?? ""),
-            ...(item["categories"] ?? ""),
-            ...(item["tags"] ? Object.keys(item["tags"]) : []),
-            ...(item["adultGame"] ? ["adult_game"] : []),
-          ],
-          semantic_boost: {
-            distance_factor: 0.5,
-            phrase: item["name"]
-          },
-          fulltext_boost: {
-            boost_factor: 2,
-            phrase: item["name"]
-          },
-          metadata: item,
-          time_stamp: item["release_date"]
-            ? new Date(item["release_date"]).toISOString()
-            : new Date().toISOString(),
-          upsert_by_tracking_id: true,
-          weight: item["metacritic_score"] || 1,
-        };
-      })
-    );
+          return {
+            chunk_html: gameToSearchableString(item),
+            link: `https://store.steampowered.com/app/${i}` ?? "",
+            image_urls: item["screenshots"] || null,
+            tracking_id: i ?? "",
+            tag_set: [
+              ...(item["genres"] ?? ""),
+              ...(item["categories"] ?? ""),
+              ...(item["tags"] ? Object.keys(item["tags"]) : []),
+              ...(item["adultGame"] ? ["adult_game"] : []),
+            ],
+            semantic_boost: {
+              distance_factor: 0.5,
+              phrase: item["name"],
+            },
+            fulltext_boost: {
+              boost_factor: 2,
+              phrase: item["name"],
+            },
+            metadata: item,
+            time_stamp: item["release_date"]
+              ? new Date(item["release_date"]).toISOString()
+              : new Date().toISOString(),
+            upsert_by_tracking_id: true,
+            weight: item["metacritic_score"] || 1,
+          };
+        })
+      )
+    ).filter((uploadData) => {
+      if (
+        uploadData.tag_set.includes("Hentai") ||
+        uploadData.tag_set.includes("Sexual Content") ||
+        uploadData.tag_set.includes("NSFW")
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    });
 
-    console.log(createChunkData);
+    if (createChunkData.length == 0) {
+      continue;
+    }
 
     try {
       await fetch("https://api.trieve.ai/api/chunk", {

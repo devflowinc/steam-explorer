@@ -1,20 +1,19 @@
-import { Chunk } from "./types";
+import { APIResponse, Chunk } from "./types";
 import { apiHeaders } from "./utils";
 
-export const getChunkByTrackingID = async (id) => {
+export const getChunkByTrackingID = async (id: string) => {
   const options = {
     method: "GET",
     headers: apiHeaders,
   };
 
   const chunk = await fetch(
-    `https://api.trieve.ai/api/chunk/tracking_id/{id}`,
+    `https://api.trieve.ai/api/chunk/tracking_id/${id}`,
     options
   ).then((response) => response.json());
 
   return chunk;
-
-}
+};
 
 export const getRecommendations = async ({
   games,
@@ -23,7 +22,6 @@ export const getRecommendations = async ({
   games: string[];
   negativeGames: string[];
 }) => {
-
   const options = {
     method: "POST",
     headers: apiHeaders,
@@ -39,60 +37,75 @@ export const getRecommendations = async ({
             range: {
               gte: 50,
             },
-          }
-        ]
+          },
+        ],
       },
       slim_chunks: true,
       strategy: "best_score",
     }),
   };
 
-  const recs = await fetch(
-    "https://api.trieve.ai/api/chunk/recommend",
-    options
-  ).then((response) => response.json());
+  const recs = (
+    await fetch("https://api.trieve.ai/api/chunk/recommend", options).then(
+      (response) => response.json()
+    )
+  ).reduce((acc: Chunk[], curr: Chunk) => {
+    if (!acc.find((game) => game.metadata.name === curr.metadata.name)) {
+      acc.push(curr);
+    }
+    return acc;
+  }, []);
 
   return recs;
 };
 
-type Filters = {
-  showFree: boolean;
-  minScore: number;
-  maxScore: number;
-  selectedCategory: string;
+export const getUserGames = async ({ userId }: { userId: string }) => {
+  const data = await fetch(
+    (import.meta.env.DEV ? "http://localhost:5173" : "") +
+      `/api/games?user=${userId}`
+  ).then((rsp) => rsp.json());
+
+  return data;
 };
 
 export const getGames = async ({
   searchTerm,
+  page = 1,
   filters,
 }: {
   searchTerm: string;
-  filters: Filters;
+  page: number;
+  filters: {
+    minScore: number;
+    maxScore: number;
+    minReviews: number;
+  };
 }) => {
-  const categories = filters.selectedCategory
-    ? {
-        field: "tag_set",
-        match_any: [filters.selectedCategory],
-      }
-    : null;
-
   const options = {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
       query: searchTerm,
-      limit: 30,
+      page_size: 18,
+      page: page,
+      get_total_pages: true,
       filters: {
         jsonb_prefilter: false,
         must: [
           {
             field: "metadata.totalPositiveNegative",
             range: {
-              gte: 50,
+              gte: filters.minReviews,
             },
           },
-          categories,
-        ].filter((a) => a),
+          {
+            field: "metadata.positiveNegativeRatio",
+            range: {
+              gte: filters.minScore,
+              lte: filters.maxScore,
+            },
+          },
+        ],
       },
       search_type: "hybrid",
     }),
@@ -103,21 +116,47 @@ export const getGames = async ({
     options
   ).then((response) => response.json());
 
-  return data.chunks;
+  return {
+    chunks: (data.chunks as APIResponse[]).reduce(
+      (acc: APIResponse[], curr: APIResponse) => {
+        if (
+          !acc.find(
+            (game) => game.chunk.metadata.name === curr.chunk.metadata.name
+          )
+        ) {
+          acc.push(curr);
+        }
+        return acc;
+      },
+      []
+    ),
+    pages: data.total_pages,
+  };
 };
 
-export const getFirstLoadGames = async () => {
+export const getFirstLoadGames = async (filters: {
+  minScore: number;
+  minReviews: number;
+  maxScore: number;
+}) => {
   const options = {
     method: "POST",
     headers: apiHeaders,
     body: JSON.stringify({
-      page_size: 30,
+      page_size: 18,
       filters: {
         must: [
           {
             field: "metadata.totalPositiveNegative",
             range: {
-              gte: 5000,
+              gte: filters.minReviews,
+            },
+          },
+          {
+            field: "metadata.positiveNegativeRatio",
+            range: {
+              gte: filters.minScore,
+              lte: filters.maxScore,
             },
           },
         ],
@@ -134,7 +173,14 @@ export const getFirstLoadGames = async () => {
     options
   ).then((response) => response.json());
 
-  return data.chunks.map((chunk: Chunk) => ({ chunk }));
+  return data.chunks
+    .reduce((acc: Chunk[], curr: Chunk) => {
+      if (!acc.find((game) => game.metadata.name === curr.metadata.name)) {
+        acc.push(curr);
+      }
+      return acc;
+    }, [])
+    .map((chunk: Chunk) => ({ chunk }));
 };
 
 export const getSuggestedQueries = async ({ term }: { term: string }) => {

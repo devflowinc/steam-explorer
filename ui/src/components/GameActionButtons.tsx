@@ -23,7 +23,7 @@ export const GameActionButtons = ({ game }: { game: Chunk }) => {
         disabled={
           !!negativeGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className="w-full sm:w-auto"
+        className="w-full md:w-auto"
         onClick={(e) => {
           e.stopPropagation();
           toggleAddGame(game);
@@ -40,7 +40,7 @@ export const GameActionButtons = ({ game }: { game: Chunk }) => {
         disabled={
           !!selectedGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className="w-full sm:w-auto"
+        className="w-full md:w-auto"
         onClick={(e) => {
           e.stopPropagation();
           toggleAddNeg(game);

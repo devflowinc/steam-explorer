@@ -3,39 +3,54 @@ import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { useGameState } from "@/lib/gameState";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Checkbox } from "./ui/checkbox";
 import { Slider } from "./ui/slider";
-import { Combobox } from "./Combobox";
+import { useSearchParams } from "@/lib/useSearchParams";
 
 export const SearchAndFilters = () => {
   const [query, setQuery] = useState("");
 
-  const [minScore, setMinScore] = useState(0);
-  const [maxScore, setMaxScore] = useState(100);
   const debouncedSearchTerm = useDebounce(query, 300);
   const {
     getGamesForSearch,
     suggestedQueries,
-    selectedCategory,
-    setSelectedCategory,
-    recFromFilters,
-    setRecFromFilters
-  } = useGameState((state) => ({
-    getGamesForSearch: state.getGamesForSearch,
-    suggestedQueries: state.suggestedQueries,
-    selectedCategory: state.selectedCategory,
-    setSelectedCategory: state.setSelectedCategory,
-    recFromFilters: state.recFromFilters,
-    setRecFromFilters: state.setRecFromFilters
-  }));
+    page,
+    setPage,
+    minSteamRatio,
+    maxSteamRatio,
+    setMaxSteamRatio,
+    setMinSteamRatio,
+    setMinReviews,
+    minReviews,
+  } = useGameState((state) => state);
+  const { setSearchParams, loaded } = useSearchParams({
+    setQuery,
+    runFirstSearch: getGamesForSearch,
+  });
 
   useEffect(() => {
-    getGamesForSearch(debouncedSearchTerm, {
-      minScore,
-      maxScore,
-      selectedCategory,
-    });
-  }, [debouncedSearchTerm, minScore, maxScore, selectedCategory]);
+    if (loaded) {
+      getGamesForSearch(query);
+      setSearchParams({
+        search: query,
+        minScore: minSteamRatio.toString(),
+        maxScore: maxSteamRatio.toString(),
+        page: page.toString(),
+        minReviews: minReviews.toString(),
+      });
+    }
+  }, [debouncedSearchTerm, minSteamRatio, maxSteamRatio, page, minReviews]);
+
+  useEffect(() => {
+    if (page) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [page]);
+
+  useEffect(() => {
+    if (query) {
+      setPage(1);
+    }
+  }, [query]);
 
   return (
     <>
@@ -47,13 +62,13 @@ export const SearchAndFilters = () => {
       />
 
       {suggestedQueries.length ? (
-        <div className="flex gap-4 items-center">
+        <div className=" gap-4 items-center hidden md:flex">
           <span className="text-sm text-muted-foreground">
             Suggested queries:
           </span>
           <ul className="flex items-center gap-2 my-4">
             {suggestedQueries.map((query) => (
-              <li>
+              <li key={query}>
                 <Badge
                   className="cursor-pointer"
                   onClick={() => setQuery(query)}
@@ -66,43 +81,39 @@ export const SearchAndFilters = () => {
           </ul>
         </div>
       ) : null}
-      <div className="mt-4 sm:flex items-center justify-between gap-4">
-        <div className="flex grow gap-4">
+      <div className="mt-4 md:flex items-center justify-between gap-4">
+        <div className="flex justify-center grow gap-4">
           <Slider
             minStepsBetweenThumbs={1}
             className="max-w-sm"
-            defaultValue={[minScore, maxScore]}
+            defaultValue={[minSteamRatio, maxSteamRatio]}
             max={100}
-            step={1}
+            step={5}
             onValueCommit={([min, max]) => {
-              setMinScore(min);
-              setMaxScore(max);
+              setMinSteamRatio(min);
+              setMaxSteamRatio(max);
             }}
           />
           <label
             htmlFor="free"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Metacritic Score ({minScore}-{maxScore})
+            Steam positive review ratio ({minSteamRatio}-{maxSteamRatio})
           </label>
         </div>
-        <div className="sm:flex inline-block items-center space-x-2 mr-2 sm:mr-0 mt-2 sm:mt-0">
-          <Combobox
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-          />
-        </div>
-        <div className="sm:flex inline-block items-center space-x-2 ">
-          <Checkbox
-            id="free"
-            checked={recFromFilters}
-            onCheckedChange={(value) => setRecFromFilters(value as boolean)}
+        <div className="mt-4 md:mt-0 flex justify-center grow gap-4">
+          <Slider
+            className="max-w-sm"
+            defaultValue={[minReviews]}
+            max={10000}
+            step={500}
+            onValueCommit={([min]) => setMinReviews(min)}
           />
           <label
             htmlFor="free"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Reccomend From Generes
+            Minimum reviews ({minReviews})
           </label>
         </div>
       </div>

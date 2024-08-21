@@ -1,11 +1,6 @@
 import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { DialogContent, DialogTitle } from "./ui/dialog";
 import { format } from "date-fns";
-import { GameCard } from "./GameCard";
-import { 
-  useState,
-  useEffect
-} from "react";
 import {
   Carousel,
   CarouselContent,
@@ -13,9 +8,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./ui/carousel";
-import {
-  getRecommendations
-} from "@/lib/api"
 import { Chunk } from "@/lib/types";
 import { AsyncImage } from "loadable-image";
 import { ScrollArea } from "./ui/scroll-area";
@@ -31,7 +23,7 @@ export const GameModal = ({
   recommended?: boolean;
 }) => {
   return (
-    <DialogContent className="sm:max-w-[800px]">
+    <DialogContent className="md:max-w-[800px]">
       <div className="grid md:grid-cols-2 gap-6 items-start">
         <div>
           <Carousel>
@@ -52,6 +44,14 @@ export const GameModal = ({
 
           <a href={game.link} target="_blank">
             <Button className="mt-4 w-full">See on Steam</Button>
+          </a>
+          <a
+            href={`https://steamdb.info/app/${game.tracking_id}/charts/`}
+            target="_blank"
+          >
+            <Button variant={"outline"} className="w-full mt-2">
+              See on SteamDB
+            </Button>
           </a>
           {!recommended ? (
             <div className="mt-4 grid grid-cols-2 space-x-2">
@@ -152,7 +152,7 @@ export const GameModal = ({
           ) : null}
           <div className="grid gap-2">
             <p className="text-lg font-medium">Details</p>
-            <div className="grid sm:grid-cols-2 gap-2">
+            <div className="grid md:grid-cols-2 gap-2">
               <div className="grid gap-1">
                 <p className="text-muted-foreground">Price</p>
                 <p className="text-2xl font-bold">${game.metadata.price}</p>

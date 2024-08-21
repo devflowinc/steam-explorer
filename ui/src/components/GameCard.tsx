@@ -1,7 +1,7 @@
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Chunk } from "@/lib/types";
 import { GameModal } from "./GameModal";
-import { IconStar, IconThumbDown, IconThumbUp } from "@tabler/icons-react";
+import { IconThumbDown, IconThumbUp } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Systems } from "./Systems";
@@ -50,7 +50,7 @@ export function GameCard({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="sm:flex border-2 rounded-md sm:max-h-28 hover:bg items-center gap-4 cursor-pointer relative max-w-full pb-4 sm:pb-0">
+        <div className="md:flex border-2 rounded-md md:max-h-28 hover:bg items-center gap-4 cursor-pointer relative max-w-full pb-4 md:pb-0">
           <div className="absolute top-1 rounded-sm left-1 bg-black/90">
             <div className="p-1">
               <Systems metadata={game.metadata} />
@@ -59,8 +59,9 @@ export function GameCard({
           <img
             src={game.metadata?.header_image}
             className={cn({
-              "sm:h-full sm:rounded-l-md rounded-t-md": !recommended,
-              "sm:h-full sm:max-w-48": recommended,
+              "md:h-full w-full md:w-auto md:rounded-l-md rounded-t-md":
+                !recommended,
+              "md:h-full md:max-w-48 w-full md:w-auto": recommended,
             })}
             alt="Game Cover Art"
           />
@@ -70,7 +71,7 @@ export function GameCard({
               {game.metadata?.name}
             </p>
 
-            <div className="sm:flex items-center justify-between">
+            <div className="md:flex items-center justify-between">
               <div className="flex flex-col gap-2">
                 <GameScore game={game} recommended={recommended} />
                 {!recommended && (
@@ -79,13 +80,15 @@ export function GameCard({
                       .sort((a, b) => b[1] - a[1])
                       .slice(0, 3)
                       .map((key) => (
-                        <Badge className="bg-amber-600">{key[0]}</Badge>
+                        <Badge key={key[0]} className="bg-amber-600">
+                          {key[0]}
+                        </Badge>
                       ))}
                   </div>
                 )}
               </div>
               {!recommended && (
-                <div className="mt-4 sm:mt-0 flex space-x-2">
+                <div className="mt-4 md:mt-0 flex space-x-2">
                   <GameActionButtons game={game} />
                 </div>
               )}{" "}
