@@ -29,6 +29,11 @@ export const SearchAndFilters = () => {
 
   useEffect(() => {
     if (loaded) {
+      window.plausible("Search", {
+        props: {
+          search: query,
+        },
+      });
       getGamesForSearch(query);
       setSearchParams({
         search: query,
@@ -66,17 +71,26 @@ export const SearchAndFilters = () => {
           Suggested queries:
         </span>
         <ul className="flex items-center gap-2 my-4">
-          {suggestedQueries.length ? suggestedQueries.map((query) => (
-            <li key={query}>
-              <Badge
-                className="cursor-pointer"
-                onClick={() => setQuery(query)}
-                variant={"secondary"}
-              >
-                {query}
-              </Badge>
-            </li>
-          )) : null}
+          {suggestedQueries.length
+            ? suggestedQueries.map((query) => (
+                <li key={query}>
+                  <Badge
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setQuery(query);
+                      window.plausible("Suggested Query Clicked", {
+                        props: {
+                          query,
+                        },
+                      });
+                    }}
+                    variant={"secondary"}
+                  >
+                    {query}
+                  </Badge>
+                </li>
+              ))
+            : null}
         </ul>
       </div>
       <div className="mt-4 md:flex items-center justify-between gap-4">

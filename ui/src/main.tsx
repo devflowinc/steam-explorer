@@ -6,6 +6,14 @@ import { ThemeProvider } from "./components/theme-provider.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
 
+declare global {
+  interface Window {
+    plausible: any;
+  }
+}
+
+window.plausible = window.plausible || {};
+
 const router = createBrowserRouter([
   {
     path: "/",

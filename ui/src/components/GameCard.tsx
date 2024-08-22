@@ -49,7 +49,17 @@ export function GameCard({
 }) {
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger
+        asChild
+        onClick={() => {
+          window.plausible("Modal Clicked", {
+            props: {
+              name: game.metadata.name,
+              tracking_id: game.tracking_id,
+            },
+          });
+        }}
+      >
         <div className="md:flex border-2 rounded-md md:max-h-28 hover:bg items-center gap-4 cursor-pointer relative max-w-full pb-4 md:pb-0">
           <div className="absolute top-1 rounded-sm left-1 bg-black/90">
             <div className="p-1">

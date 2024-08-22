@@ -134,16 +134,14 @@ export const useGameState = create<GameState>()(
               shownGames: games.chunks,
               availablePages: games.pages,
               isLoading: false,
-            }))
-          })
+            }));
+          });
 
-          getSuggestedQueries({ term })
-            .then((suggestedQueries) => {
-              set(() => ({
-                suggestedQueries,
-              }))
-            })
-
+          getSuggestedQueries({ term }).then((suggestedQueries) => {
+            set(() => ({
+              suggestedQueries,
+            }));
+          });
         } else {
           getFirstLoadGames({
             maxScore: get().maxSteamRatio,
@@ -156,19 +154,20 @@ export const useGameState = create<GameState>()(
             }));
           });
 
-          getSuggestedQueries({ term: "Openworld fighting game" })
-            .then((suggestedQueries) => {
+          getSuggestedQueries({ term: "Openworld fighting game" }).then(
+            (suggestedQueries) => {
               set(() => ({
                 suggestedQueries: suggestedQueries,
               }));
-            })
+            }
+          );
         }
       },
       clearSelectedGames: () =>
         set(() => ({
           selectedGames: [],
           negativeGames: [],
-          recommendedGames: []
+          recommendedGames: [],
         })),
       removeSelectedGame: (id: string) =>
         set((state) => ({
@@ -180,6 +179,14 @@ export const useGameState = create<GameState>()(
         const recommendations = await getRecommendations({
           games: get().selectedGames.map((g) => g.tracking_id),
           negativeGames: get().negativeGames.map((g) => g.tracking_id),
+        });
+        recommendations.map((rec: Chunk) => {
+          window.plausible("Recommendation", {
+            props: {
+              name: rec.metadata.name,
+              tracking_id: rec.tracking_id,
+            },
+          });
         });
         set(() => ({
           recommendedGames: recommendations,

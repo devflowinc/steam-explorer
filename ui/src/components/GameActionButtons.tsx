@@ -9,14 +9,6 @@ import {
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
-declare global {
-  interface Window {
-    plausible: any;
-  }
-}
-
-window.plausible = window.plausible || {};
-
 export const GameActionButtons = ({ game }: { game: Chunk }) => {
   const { toggleAddGame, toggleAddNeg, negativeGames, selectedGames } =
     useGameState((state) => ({
