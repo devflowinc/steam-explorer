@@ -121,40 +121,47 @@ export const useGameState = create<GameState>()(
       getGamesForSearch: async (term: string) => {
         set(() => ({ isLoading: true }));
         if (term) {
-          const [games, suggestedQueries] = await Promise.all([
-            getGames({
-              searchTerm: term,
-              page: get().page,
-              filters: {
-                minReviews: get().minReviews,
-                maxScore: get().maxSteamRatio,
-                minScore: get().minSteamRatio,
-              },
-            }),
-            getSuggestedQueries({ term }),
-          ]);
-
-          set(() => ({
-            shownGames: games.chunks,
-            availablePages: games.pages,
-            suggestedQueries,
-            isLoading: false,
-          }));
-        } else {
-          const [games, suggestedQueries] = await Promise.all([
-            getFirstLoadGames({
+          getGames({
+            searchTerm: term,
+            page: get().page,
+            filters: {
+              minReviews: get().minReviews,
               maxScore: get().maxSteamRatio,
               minScore: get().minSteamRatio,
-              minReviews: get().minReviews,
-            }),
-            getSuggestedQueries({ term: "Openworld fighting game" }),
-          ]);
+            },
+          }).then((games) => {
+            set(() => ({
+              shownGames: games.chunks,
+              availablePages: games.pages,
+              isLoading: false,
+            }))
+          })
 
-          set(() => ({
-            shownGames: games,
-            suggestedQueries: suggestedQueries,
-            isLoading: false,
-          }));
+          getSuggestedQueries({ term })
+            .then((suggestedQueries) => {
+              set(() => ({
+                suggestedQueries,
+              }))
+            })
+
+        } else {
+          getFirstLoadGames({
+            maxScore: get().maxSteamRatio,
+            minScore: get().minSteamRatio,
+            minReviews: get().minReviews,
+          }).then((games) => {
+            set(() => ({
+              shownGames: games,
+              isLoading: false,
+            }));
+          });
+
+          getSuggestedQueries({ term: "Openworld fighting game" })
+            .then((suggestedQueries) => {
+              set(() => ({
+                suggestedQueries: suggestedQueries,
+              }));
+            })
         }
       },
       clearSelectedGames: () =>

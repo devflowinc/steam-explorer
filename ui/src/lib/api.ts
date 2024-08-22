@@ -31,6 +31,7 @@ export const getRecommendations = async ({
       ...(negativeGames.length && { negative_tracking_ids: negativeGames }),
       recommend_type: "semantic",
       filters: {
+        jsonb_prefilter: false,
         must: [
           {
             field: "metadata.totalPositiveNegative",
@@ -145,6 +146,7 @@ export const getFirstLoadGames = async (filters: {
     body: JSON.stringify({
       page_size: 18,
       filters: {
+        jsonb_prefilter: false,
         must: [
           {
             field: "metadata.totalPositiveNegative",
