@@ -7,7 +7,6 @@ import {
   IconThumbDown,
   IconThumbDownFilled,
 } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
 
 export const GameActionButtons = ({ game }: { game: Chunk }) => {
   const { toggleAddGame, toggleAddNeg, negativeGames, selectedGames } =
@@ -31,7 +30,7 @@ export const GameActionButtons = ({ game }: { game: Chunk }) => {
         disabled={
           !!negativeGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className={cn("w-full md:w-auto")}
+        className={"w-full md:w-auto"}
         onClick={(e) => {
           !!gameLiked &&
             window.plausible("Game Liked", {
@@ -51,7 +50,7 @@ export const GameActionButtons = ({ game }: { game: Chunk }) => {
         disabled={
           !!selectedGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className={cn("w-full md:w-auto")}
+        className={"w-full md:w-auto"}
         onClick={(e) => {
           !!gameDisliked &&
             window.plausible("Game Disliked", {
