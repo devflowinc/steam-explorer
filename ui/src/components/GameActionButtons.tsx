@@ -9,6 +9,14 @@ import {
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
+declare global {
+  interface Window {
+    plausible: any;
+  }
+}
+
+window.plausible = window.plausible || {};
+
 export const GameActionButtons = ({ game }: { game: Chunk }) => {
   const { toggleAddGame, toggleAddNeg, negativeGames, selectedGames } =
     useGameState((state) => ({
@@ -31,11 +39,15 @@ export const GameActionButtons = ({ game }: { game: Chunk }) => {
         disabled={
           !!negativeGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className={cn(
-          "w-full md:w-auto",
-          !gameLiked && `plausible-event-name=Game+Liked+${game.tracking_id}`
-        )}
+        className={cn("w-full md:w-auto")}
         onClick={(e) => {
+          !!gameLiked &&
+            window.plausible("Game Liked", {
+              props: {
+                name: game.metadata.name,
+                tracking_id: game.tracking_id,
+              },
+            });
           e.stopPropagation();
           toggleAddGame(game);
         }}
@@ -47,12 +59,15 @@ export const GameActionButtons = ({ game }: { game: Chunk }) => {
         disabled={
           !!selectedGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className={cn(
-          "w-full md:w-auto",
-          !gameDisliked &&
-            `plausible-event-name=Game+Disliked+${game.tracking_id}`
-        )}
+        className={cn("w-full md:w-auto")}
         onClick={(e) => {
+          !!gameDisliked &&
+            window.plausible("Game Disliked", {
+              props: {
+                name: game.metadata.name,
+                tracking_id: game.tracking_id,
+              },
+            });
           e.stopPropagation();
           toggleAddNeg(game);
         }}
