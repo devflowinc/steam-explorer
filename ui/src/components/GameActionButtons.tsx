@@ -17,31 +17,48 @@ export const GameActionButtons = ({ game }: { game: Chunk }) => {
       selectedGames: state.selectedGames,
     }));
 
+  const gameLiked = selectedGames.find(
+    (g) => g.tracking_id == game.tracking_id
+  );
+  const gameDisliked = negativeGames.find(
+    (g) => g.tracking_id == game.tracking_id
+  );
+
   return (
     <>
       <Button
         disabled={
           !!negativeGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className="w-full md:w-auto"
+        className={"w-full md:w-auto"}
         onClick={(e) => {
+          !!gameLiked &&
+            window.plausible("Game Liked", {
+              props: {
+                name: game.metadata.name,
+                tracking_id: game.tracking_id,
+              },
+            });
           e.stopPropagation();
           toggleAddGame(game);
         }}
       >
-        {!selectedGames.find((g) => g.tracking_id == game.tracking_id) ? (
-          <IconHeart />
-        ) : (
-          <IconHeartFilled />
-        )}
+        {!gameLiked ? <IconHeart /> : <IconHeartFilled />}
       </Button>
       <Button
         variant={"secondary"}
         disabled={
           !!selectedGames.find((g) => g.tracking_id == game.tracking_id)
         }
-        className="w-full md:w-auto"
+        className={"w-full md:w-auto"}
         onClick={(e) => {
+          !!gameDisliked &&
+            window.plausible("Game Disliked", {
+              props: {
+                name: game.metadata.name,
+                tracking_id: game.tracking_id,
+              },
+            });
           e.stopPropagation();
           toggleAddNeg(game);
         }}
