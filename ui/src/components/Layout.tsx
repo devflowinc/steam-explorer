@@ -27,7 +27,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </div>
       <header className="my-12 mt-4 flex justify-center">
         <Link to={"/"}>
-          <Logo className="w-[300px] h-auto" />
+          <Logo className="w-[400px] h-auto" />
           <h1 className="font-thin italic text-center mt-2">
             when search isn't enough
           </h1>
