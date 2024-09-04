@@ -199,5 +199,7 @@ export const getSuggestedQueries = async ({ term }: { term: string }) => {
     options
   ).then((response) => response.json());
 
-  return data.queries.slice(0, 4);
+  return data.queries
+    .slice(0, 4)
+    .map((query: string) => query.replace(/^- /, ''));
 };
